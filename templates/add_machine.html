@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Add Machine</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="machine_id">Machine ID</label>
+                <input type="text" class="form-control" id="machine_id" name="machine_id" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Machine</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    </div>
+{% endblock %}

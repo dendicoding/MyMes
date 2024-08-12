@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Operators</h1>
+<div class="page">
+    <h2>Operators</h2>
+    <div class="machine-grid">
+        {% for operator in operators %}
+        <div class="machine-card">
+            <div class="machine-card-header">
+                <h3>Operator ID: {{ operator.operator_id }}</h3>
+            </div>
+            <div class="machine-card-body">
+                <p><strong>Name:</strong> {{ operator.name }}</p>
+                <p><strong>Status:</strong> {{ operator.status}}</p>
+                <p><strong>Current Task:</strong> {{ operator.current_task}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <h2>Add New Operator</h2>
+    <a href="{{ url_for('add_machine') }}" class="btn btn-secondary">Add Machine</a>
+</div>
+{% endblock %}

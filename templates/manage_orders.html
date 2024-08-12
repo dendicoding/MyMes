@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Manage Orders</h1>
+
+{% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div class="alert">
+        {% for category, message in messages %}
+            <div class="alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+            {% if order.status != 'completed' %}
+                <tr>
+                    <form action="{{ url_for('manage_orders') }}" method="POST" style="display: flex; align-items: center;">
+                        <td>{{ order.order_id }}</td>
+                        <td>{{ order.product }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>
+                            <input type="number" name="produced_quantity" class="form-control" min="1" max="{{ order.quantity }}" required style="width: auto; display: inline-block;">
+                            <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                            <button type="submit" name="action" value="advance" class="btn btn-primary mt-2">Update Quantity</button>
+                        </td>
+                    </form>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+{% endblock %}

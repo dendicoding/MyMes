@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Tasks Management</h1>
+
+<!-- Create Task Form -->
+{% if session.role == 'manager' %}
+    <h2>Create Task</h2>
+    <form method="POST" action="{{ url_for('create_task') }}">
+        <div class="form-group">
+            <label for="order_id">Order ID</label>
+            <select id="order_id" name="order_id" required>
+                <option value="" disabled selected>Select Order</option>
+                {% set emitted_orders = orders 
+                    | rejectattr('status', 'equalto', 'created') 
+                    | rejectattr('status', 'equalto', 'completed') 
+                    | list 
+                %}
+                {% if emitted_orders %}
+                    {% for order in emitted_orders %}
+                        <option value="{{ order.order_id }}">{{ order.order_id }} - {{ order.product }}</option>
+                    {% endfor %}
+                {% else %}
+                    <option value="" disabled>No orders available</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="machine_id">Machine ID</label>
+            <select id="machine_id" name="machine_id" required>
+                <option value="" disabled selected>Select Machine</option>
+                {% for machine in machines %}
+                    <option value="{{ machine.machine_id }}">{{ machine.machine_id }} - {{ machine.status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="task">Task Description</label>
+            <input type="text" id="task" name="task" required>
+        </div>
+        <div class="form-group">
+            <label for="estimated_time">Estimated Time (hours)</label>
+            <input type="number" id="estimated_time" name="estimated_time" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </form>
+
+    <!-- Start Task Form -->
+<h2>Start Task</h2>
+<form method="POST" action="{{ url_for('start_task') }}">
+    <div class="form-group">
+        <label for="start_task_id">Task ID</label>
+        <select id="start_task_id" name="task_id" required>
+            <option value="" disabled selected>Select Task</option>
+            {% for task in tasks if task.status == 'pending' or task.status == 'suspended' %}
+                <option value="{{ task.task_id }}" data-machine_id="{{ task.machine_id }}" data-order_id="{{ task.order_id }}" data-task="{{ task.task }}">{{ task.task_id }} - {{ task.task }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="start_operator_id">Operator</label>
+        <select id="start_operator_id" name="operator_id" required>
+            <option value="" disabled selected>Select Inactive Operator</option>
+            {% for operator in operators if operator.status == 'idle' %}
+                <option value="{{ operator.operator_id }}" data-operator_id="{{ operator.operator_id }}" data-operator_name="{{ operator.name }}">{{ operator.operator_id }} - {{ operator.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="hidden" id="start_machine_id" name="machine_id">
+    <input type="hidden" id="start_order_id" name="order_id">
+    <input type="hidden" id="start_task" name="task">
+    <input type="hidden" id="start_operator_id_hidden" name="operator_id">
+    <input type="hidden" id="start_operator_name_hidden" name="operator_name">
+    <button type="submit" class="btn btn-primary">Start Task</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startTaskSelect = document.getElementById('start_task_id');
+        const machineIdInput = document.getElementById('start_machine_id');
+        const orderIdInput = document.getElementById('start_order_id');
+        const taskInput = document.getElementById('start_task');
+        const operatorSelect = document.getElementById('start_operator_id');
+        const operatorIdHidden = document.getElementById('start_operator_id_hidden');
+        const operatorNameHidden = document.getElementById('start_operator_name_hidden');
+
+        startTaskSelect.addEventListener('change', function() {
+            const selectedOption = startTaskSelect.options[startTaskSelect.selectedIndex];
+            machineIdInput.value = selectedOption.getAttribute('data-machine_id');
+            orderIdInput.value = selectedOption.getAttribute('data-order_id');
+            taskInput.value = selectedOption.getAttribute('data-task');
+        });
+
+        operatorSelect.addEventListener('change', function() {
+            const selectedOption = operatorSelect.options[operatorSelect.selectedIndex];
+            operatorIdHidden.value = selectedOption.getAttribute('data-operator_id');
+            operatorNameHidden.value = selectedOption.getAttribute('data-operator_name');
+        });
+    });
+</script>
+
+{% endif %}
+
+<h2>Tasks</h2>
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Task ID</th>
+            <th>Task Description</th>
+            <th>Order ID</th>
+            <th>Machine ID</th>
+            <th>Status</th>
+            <th>Operator ID</th>
+            <th>Operator Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Estimated Time</th>
+            <th>Cost</th>
+            {% if session.role == 'manager' %}
+                <th>Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+            <tr class="{% if task.status == 'pending' %}task-status-pending{% elif task.status == 'in_progress' %}task-status-in-progress{% elif task.status == 'completed' %}task-status-completed{% elif task.status == 'suspended' %}task-status-suspended{% endif %}">
+                <td>{{ task.task_id }}</td>
+                <td>{{ task.task }}</td>
+                <td>{{ task.order_id }}</td>
+                <td>{{ task.machine_id }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.operator }}</td>
+                <td>{{ task.operator_name }}</td>
+                <td>{{ task.start_time }}</td>
+                <td>{{ task.end_time }}</td>
+                <td>{{ task.estimated_time }} hours</td>
+                <td>${{ task.cost | default('N/A') }}</td>
+                {% if session.role == 'manager' %}
+                    <td>
+                        {% if task.status == 'in_progress' %}
+                            <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-warning">Suspend</button>
+                                <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
+                                <input type="hidden" name="order_id" value="{{ task.order_id }}">
+                                <input type="hidden" name="operator_id" value="{{ task.operator }}">
+                            </form>
+                            <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-success">Complete</button>
+                                <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
+                                <input type="hidden" name="order_id" value="{{ task.order_id }}">
+                                <input type="hidden" name="operator_id" value="{{ task.operator }}">
+                            </form>
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

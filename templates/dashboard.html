@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<!-- Sezione per la visualizzazione degli ordini e delle macchine -->
+<div class="dashboard">
+    <h2>Production Orders</h2>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr class="{% if order.status == 'pending' %}order-status-pending{% elif order.status == 'in_progress' %}order-status-in-progress{% elif order.status == 'completed' %}order-status-completed{% elif order.status == 'suspended' %}order-status-suspended{% endif %}">
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.product }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>{{ order.status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Machines</h2>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Machine ID</th>
+                <th>Status</th>
+                <th>Current Order</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for machine in machines %}
+                <tr class="{% if machine.status == 'idle' %}machine-status-idle{% elif machine.status == 'working' %}machine-status-working{% endif %}">
+                    <td>{{ machine.machine_id }}</td>
+                    <td>{{ machine.status }}</td>
+                    <td>{{ machine.current_order if machine.current_order else 'None' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- {% if session.role == 'manager' %}
+    <h2>Assign Order to Machine and Operator</h2>
+    <form method="POST" action="{{ url_for('assign_order') }}">
+        <div class="form-group">
+            <label for="order_id">Order ID</label>
+            <select id="order_id" name="order_id" required>
+                <option value="" disabled selected>Select Order</option>
+                {% for order in orders %}
+                    <option value="{{ order.order_id }}">{{ order.order_id }} - {{ order.product }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="machine_id">Machine ID</label>
+            <select id="machine_id" name="machine_id" required>
+                <option value="" disabled selected>Select Machine</option>
+                {% for machine in machines %}
+                    <option value="{{ machine.machine_id }}">{{ machine.machine_id }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="name">Operator</label>
+            <select id="name" name="name" required>
+                <option value="" disabled selected>Select Operator</option>
+                {% for operator in operators %}
+                    <option value="{{ operator.name }}">{{ operator.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Assign Order</button>
+    </form>
+    {% endif %}
+-->
+</div>
+{% endblock %}

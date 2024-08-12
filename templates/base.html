@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My MES</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <style>
+        /* Stili per gli ordini */
+        .order-status-pending {
+            background-color: #ffc107 !important; /* Giallo */
+        }
+        .order-status-in-progress {
+            background-color: #28a745 !important; /* Verde */
+        }
+        .order-status-completed {
+            background-color: #6c757d !important; /* Grigio */
+        }
+        .order-status-suspended {
+            background-color: #ffc107 !important; /* Giallo */
+        }
+
+        /* Stili per le macchine */
+        .machine-status-idle {
+            background-color: #ffc107 !important; /* Grigio chiaro */
+        }
+        .machine-status-working {
+            background-color: #28a745 !important; /* Verde */
+        }
+
+        /* Stili per i task */
+        .task-status-pending {
+            background-color: #ffc107 !important; /* Giallo */
+        }
+        .task-status-in-progress {
+            background-color: #28a745 !important; /* Azzurro */
+        }
+        .task-status-completed {
+            background-color: #6c757d !important; /* Verde */
+        }
+        .task-status-suspended {
+            background-color: #ffc107 !important; /* Rosso */
+        }
+    </style>
+</head>
+<body>
+    {% if not hide_nav %}
+    <div class="navbar">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('orders') }}">Orders</a>
+        <a href="{{ url_for('manage_orders') }}">Manage Orders</a>
+        <a href="{{ url_for('tasks') }}">Tasks</a>
+        <a href="{{ url_for('report') }}">Report</a>
+        <a href="{{ url_for('view_machines') }}">Machines</a>
+        <a href="{{ url_for('view_operators') }}">Operators</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    {% endif %}
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="flash">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Machines</h1>
+<div class="page">
+    <h2>Current Machines</h2>
+    <div class="machine-grid">
+        {% for machine in machines %}
+        <div class="machine-card">
+            <div class="machine-card-header">
+                <h3>Machine ID: {{ machine.machine_id }}</h3>
+            </div>
+            <div class="machine-card-body">
+                <p><strong>Status:</strong> {{ machine.status }}</p>
+                <p><strong>Current Order:</strong> {{ machine.current_order if machine.current_order else 'None' }}</p>
+                <p><strong>Current Task:</strong> {{ machine.current_task if machine.current_task else 'None' }}</p>
+                <p><strong>Start Time:</strong> {{ machine.start_time if machine.start_time else 'None' }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <h2>Add New Machine</h2>
+    <a href="{{ url_for('add_machine') }}" class="btn btn-secondary">Add Machine</a>
+</div>
+{% endblock %}

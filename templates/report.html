@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Completed Orders Report</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Status</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Cost</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_id }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.product }}</td>
+            <td>{{ order.initial_quantity }}</td>
+            <td>{{ order.start_time }}</td>
+            <td>{{ order.end_time }}</td>
+            <td>{{ order.cost }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
