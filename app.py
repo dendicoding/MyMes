@@ -9,7 +9,7 @@ from config import CONNECTION_STRING
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Struttura per conservare gli ordini di produzione
+# Struttura per conservare gli ordini di produzione!
 production_orders = {}
 
 
