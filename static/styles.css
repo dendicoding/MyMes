@@ -1,15 +1,16 @@
 /* Base styling */
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Moderno e minimalista */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
     margin: 0;
     padding: 0;
     color: #333;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* Transizioni per sfondo e testo */
 }
 
 /* Navbar styling */
 .navbar {
-    background-color: #007bff;
+    background: linear-gradient(90deg, #007bff, #0056b3);
     color: #fff;
     padding: 15px;
     text-align: center;
@@ -18,6 +19,7 @@ body {
     top: 0;
     left: 0;
     z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .navbar a {
@@ -27,22 +29,26 @@ body {
     display: inline-block;
     font-size: 18px;
     border-radius: 5px;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .navbar a:hover {
     background-color: #0056b3;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
 }
 
 /* Main container */
 .container {
-    margin-top: 70px; /* Space for fixed navbar */
+    margin-top: 80px; /* Space for fixed navbar */
     padding: 20px;
+    animation: fadeIn 0.6s ease-in-out; /* Animazione di ingresso */
 }
 
 /* Flash messages */
 .flash {
     margin: 10px 0;
+    animation: slideIn 0.5s ease-in-out;
 }
 
 .flash-success {
@@ -51,6 +57,7 @@ body {
     padding: 10px;
     border: 1px solid #c3e6cb;
     border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .flash-error {
@@ -59,6 +66,7 @@ body {
     padding: 10px;
     border: 1px solid #f5c6cb;
     border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Button styling */
@@ -73,9 +81,9 @@ body {
     font-size: 16px;
     margin: 8px 4px;
     cursor: pointer;
-    border-radius: 12px; /* Maggiore arrotondamento */
-    transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s; /* Aggiunto effetto di trasformazione */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Ombra più pronunciata */
+    border-radius: 12px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary {
@@ -84,21 +92,22 @@ body {
 
 .button:hover, .btn:hover, .btn-primary:hover {
     background-color: #0056b3;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); /* Ombra più pronunciata al passaggio del mouse */
-    transform: translateY(-2px); /* Solleva leggermente il bottone al passaggio del mouse */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
 }
 
 /* Stile per il bottone disabilitato */
 .button:disabled, .btn:disabled, .btn-primary:disabled {
-    background-color: #6c757d; /* Colore di sfondo per il bottone disabilitato */
+    background-color: #6c757d;
     color: #fff;
     cursor: not-allowed;
-    box-shadow: none; /* Rimuovi l'ombra per il bottone disabilitato */
+    box-shadow: none;
 }
 
 /* Form styling */
 .form-group {
     margin-bottom: 15px;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .form-group label {
@@ -113,42 +122,49 @@ body {
     border: 1px solid #ced4da;
     border-radius: 5px;
     box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* Table styling */
-.table {
+.table, table {
     width: 100%;
-    border-collapse: separate; /* Allow border radius */
-    border-spacing: 0; /* Remove space between cells */
+    border-collapse: separate;
+    border-spacing: 0;
     margin: 20px 0;
     background-color: #fff;
-    border-radius: 8px; /* Rounded corners for the table */
-    overflow: hidden; /* Hide overflow for rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 0.6s ease-in-out;
+    font-size: 16px;
+    text-align: left;
 }
 
-.table thead {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.table th, .table td {
+/* Table headers */
+.table th, th, .table td, td {
     border: 1px solid #dee2e6;
     padding: 12px;
     text-align: left;
-    border-radius: 5px; /* Rounded corners for cells */
 }
 
-.table th {
+.table thead, th {
     background-color: #0056b3;
+    color: #fff;
+    font-weight: bold;
 }
 
-.table tr:nth-child(even) {
+.table tr:nth-child(even), tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-.table tr:hover {
+.table tr:hover, tr:hover {
     background-color: #e9ecef;
+    transition: background-color 0.3s ease;
 }
 
 /* Specific styling for status indicators */
@@ -178,68 +194,24 @@ body {
     margin-top: 1rem;
 }
 
-/* Aggiunge uno stile generale alla tabella */
-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 20px 0;
-    font-size: 16px;
-    text-align: left;
-}
-
-/* Stile per le intestazioni della tabella */
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Stile per le intestazioni della tabella */
-th {
-    background-color: #f4f4f4;
-    color: #333;
-    font-weight: bold;
-}
-
-/* Colore di sfondo alternato per le righe della tabella */
-tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-/* Colore di sfondo per la riga al passaggio del mouse */
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* Stile per il contenitore della pagina */
+/* Page container styling */
 .page {
     padding: 20px;
     margin: 0 auto;
     max-width: 1200px;
+    animation: fadeIn 0.6s ease-in-out;
 }
 
-/* Stile per i titoli */
+/* Titles styling */
 h2 {
     border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
     margin-bottom: 20px;
     color: #007bff;
+    animation: slideIn 0.5s ease-in-out;
 }
 
-/* Stile generale per i menu a tendina */
-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #fff;
-    color: #333;
-    appearance: none; /* Rimuove il default styling del browser */
-    background: #f9f9f9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23333" stroke-width="1" fill="none"/></svg>') no-repeat right 10px center;
-}
-
-/* Stile generale per il menu a tendina */
+/* Dropdown menu styling */
 select {
     width: 100%;
     padding: 12px 16px;
@@ -248,20 +220,18 @@ select {
     font-size: 16px;
     background-color: #fff;
     color: #333;
-    appearance: none; /* Rimuove il default styling del browser */
+    appearance: none;
     background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23333" stroke-width="1" fill="none"/></svg>') no-repeat right 16px center;
     background-size: 12px;
-    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Stile per il menu a tendina al passaggio del mouse */
 select:hover {
     border-color: #007bff;
     background-color: #f1f1f1;
 }
 
-/* Stile per i menu a tendina al focus */
 select:focus {
     border-color: #007bff;
     outline: none;
@@ -269,28 +239,25 @@ select:focus {
     background-color: #f9f9f9;
 }
 
-/* Stile per le opzioni del menu a tendina */
 select option {
     padding: 12px;
-    border-radius: 8px; /* Arrotondamento delle opzioni */
+    border-radius: 8px;
     background-color: #fff;
     color: #333;
-    transition: background-color 0.2s, color 0.2s; /* Transizioni per un effetto più fluido */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Stile per le opzioni selezionate */
 select option:checked {
     background-color: #007bff;
     color: #fff;
 }
 
-/* Stile per le opzioni al passaggio del mouse */
 select option:hover {
     background-color: #007bff;
     color: #fff;
 }
 
-/* Colori per gli ordini */
+/* Order status colors */
 .order-status-pending {
     background-color: white;
 }
@@ -307,17 +274,18 @@ select option:hover {
     background-color: yellow;
 }
 
+/* Input centering */
 .input-small {
     max-width: 600px;
-    margin: 0 auto; /* Centra gli input */
+    margin: 0 auto;
 }
 
+/* Form container styling */
 .form-container {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
 /* Machine card styling */
 .machine-grid {
     display: grid;
@@ -327,45 +295,127 @@ select option:hover {
 }
 
 .machine-card {
-    background-color: #2C2C2C; /* Dark background similar to the image */
-    border-radius: 10px;
+    background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+    border-radius: 15px;
     padding: 20px;
-    color: #FFFFFF; /* White text for contrast */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Ombra esterna più marcata */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    overflow: hidden;
+    position: relative; /* Per la posizione dell'ombra interna */
 }
 
 .machine-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-12px); /* Maggiore sollevamento al passaggio del mouse */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4); /* Ombra esterna più marcata al passaggio del mouse */
+    background: linear-gradient(135deg, #333333, #666666);
+}
+
+.machine-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2); /* Ombra interna per maggiore profondità */
+    border-radius: 15px;
+    z-index: 0;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.machine-card:hover::before {
+    opacity: 1;
 }
 
 .machine-card-header {
-    border-bottom: 1px solid #444444; /* Darker border for separation */
-    margin-bottom: 10px;
+    border-bottom: 2px solid #555555;
+    margin-bottom: 15px;
     padding-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    z-index: 1; /* Per garantire che l'intestazione sia sopra l'ombra interna */
 }
 
 .machine-card-body p {
     margin: 10px 0;
+    line-height: 1.6;
 }
 
 .btn-secondary {
-    background-color: #1E90FF; /* Blue button */
-    color: #FFFFFF; /* White text */
+    background-color: #1E90FF;
+    color: #FFFFFF;
     padding: 10px 20px;
     text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background-color: #1C86EE; /* Slightly darker blue on hover */
+    background-color: #1C86EE;
+    transform: translateY(-3px);
 }
 
-/* CSS per la colorazione delle macchine */
+/* Machine status colors */
 .machine-status-idle {
-    background-color: #f5f5f5; /* Grigio chiaro */
+    background-color: #f5f5f5;
 }
+
 .machine-status-working {
-    background-color: lightgreen; /* Verde chiaro */
+    background-color: lightgreen;
+}
+
+
+.btn-secondary {
+    background-color: #1E90FF;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #1C86EE;
+    transform: translateY(-3px);
+}
+
+/* Machine status colors */
+.machine-status-idle {
+    background-color: #f5f5f5;
+}
+
+.machine-status-working {
+    background-color: lightgreen;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
