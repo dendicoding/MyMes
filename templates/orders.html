@@ -34,24 +34,6 @@
                                 <button type="submit" class="btn btn-info">Emit</button>
                             </form>
                         {% endif %}
-                        {% if order.status == 'pending' %}
-                            <form action="{{ url_for('assign_order') }}" method="POST" style="display:inline;">
-                                <input type="hidden" name="order_id" value="{{ order.order_id }}">
-                                <select name="machine_id" required>
-                                    <option value="" disabled selected>Select Machine</option>
-                                    {% for machine in machines %}
-                                        <option value="{{ machine.machine_id }}">{{ machine.machine_id }}</option>
-                                    {% endfor %}
-                                </select>
-                                <select name="operator_id" required>
-                                    <option value="" disabled selected>Select Operator</option>
-                                    {% for operator in operators %}
-                                        <option value="{{ operator.operator_id }}">{{ operator.name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-primary">Assign</button>
-                            </form>
-                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
