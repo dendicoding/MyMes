@@ -9,7 +9,8 @@
             <tr>
                 <th>Order ID</th>
                 <th>Product</th>
-                <th>Quantity</th>
+                <th>Residual Quantity</th>
+                <th>Requested Quantity</th>
                 <th>Status</th>
                 <th>Machine ID</th>
                 <th>Operator</th>
@@ -22,6 +23,7 @@
                     <td>{{ order.order_id }}</td>
                     <td>{{ order.product }}</td>
                     <td>{{ order.quantity }}</td>
+                    <td>{{ order.initial_quantity }}</td>
                     <td>{{ order.status }}</td>
                     <td>{{ order.machine_id if order.machine_id else 'None' }}</td>
                     <td>{{ order.operator_name if order.operator_name else 'None' }}</td>

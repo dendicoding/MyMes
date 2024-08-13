@@ -136,23 +136,27 @@
                 <td>{{ task.estimated_time }} hours</td>
                 <td>${{ task.cost | default('N/A') }}</td>
                 {% if session.role == 'manager' %}
-                    <td>
-                        {% if task.status == 'in_progress' %}
-                            <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
-                                <button type="submit" class="btn btn-warning">Suspend</button>
-                                <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
-                                <input type="hidden" name="order_id" value="{{ task.order_id }}">
-                                <input type="hidden" name="operator_id" value="{{ task.operator }}">
-                            </form>
-                            <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
-                                <button type="submit" class="btn btn-success">Complete</button>
-                                <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
-                                <input type="hidden" name="order_id" value="{{ task.order_id }}">
-                                <input type="hidden" name="operator_id" value="{{ task.operator }}">
-                            </form>
-                        {% endif %}
-                    </td>
-                {% endif %}
+                <td>
+                    {% if task.status == 'in_progress' %}
+                        <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-warning">Suspend</button>
+                            <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
+                            <input type="hidden" name="order_id" value="{{ task.order_id }}">
+                            <input type="hidden" name="operator_id" value="{{ task.operator }}">
+                        </form>
+                        <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-success">Complete</button>
+                            <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
+                            <input type="hidden" name="order_id" value="{{ task.order_id }}">
+                            <input type="hidden" name="operator_id" value="{{ task.operator }}">
+                        </form>
+                        <!-- Pulsante per dichiarare -->
+                        <a href="{{ url_for('manage_tasks', task_id=task.task_id) }}" class="btn btn-info">Declare</a>
+
+                    {% endif %}
+                </td>
+{% endif %}
+
             </tr>
         {% endfor %}
     </tbody>

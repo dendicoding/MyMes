@@ -1,8 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
-import random
-import time
-import threading
 import pyodbc
 from config import CONNECTION_STRING
 
@@ -222,6 +219,7 @@ def get_orders():
                 'status': row.status,
                 'product': row.product,
                 'quantity': row.quantity,
+                'initial_quantity': row.initial_quantity,
                 'machine_id': row.machine_id,
                 'start_time': row.start_time,
                 'end_time': row.end_time,
@@ -806,6 +804,64 @@ def start_task():
     else:
         return redirect(url_for('login'))
 
+@app.route('/manage_tasks/<int:task_id>', methods=['GET', 'POST'])
+def manage_tasks(task_id):
+    if 'username' in session:
+        if request.method == 'POST':
+            # Ottieni i valori dal form
+            good_pieces = int(request.form.get('good_pieces', 0))
+            scrap_pieces = int(request.form.get('scrap_pieces', 0))
+
+            # Ottieni i task dal database
+            tasks = get_tasks()
+            task = next((t for t in tasks if t['task_id'] == task_id), None)
+
+            if task:
+                order_id = task['order_id']
+                orders = get_orders()  # Ottieni tutti gli ordini
+                order = next((o for o in orders if o['order_id'] == order_id), None)
+
+                if order:
+                    if good_pieces >= 0 and scrap_pieces >= 0:
+                        new_quantity = order['quantity'] - good_pieces + scrap_pieces
+                        if new_quantity < 0:
+                            flash('La quantità risultante non può essere negativa.', 'error')
+                        else:
+                            # Aggiorna la quantità dell'ordine
+                            update_order_quantity(order_id, new_quantity)
+
+                            # Aggiorna lo stato del task e dell'ordine se necessario
+                            if new_quantity == 0:
+                                update_task(task_id, status='completed', end_time=datetime.now())
+                                update_order(order_id, status='completed', end_time=datetime.now())
+                                machine_id = task.get("machine_id")
+                                if machine_id:
+                                    update_machine(machine_id, status='idle', current_order='None', current_task='None')
+                                flash(f'Task {task_id} completato e ordine {order_id} completato.', 'success')
+                            else:
+                                flash(f'Task {task_id} aggiornato con {good_pieces} buoni e {scrap_pieces} scarti.', 'success')
+                    else:
+                        flash('Valori non validi per buoni o scarti.', 'error')
+                else:
+                    flash('Ordine associato non trovato.', 'error')
+            else:
+                flash('Task non trovato.', 'error')
+
+        elif request.method == 'GET':
+            # Ottieni i dettagli del task
+            tasks = get_tasks()
+            task = next((t for t in tasks if t['task_id'] == task_id), None)
+
+            if task:
+                return render_template('manage_tasks.html', task_id=task_id)
+            else:
+                flash('Task non trovato.', 'error')
+                return redirect(url_for('tasks'))  # Redirigi alla pagina dei task
+
+        # Reindirizza alla pagina dei task se la richiesta non è POST né GET valida
+        return redirect(url_for('tasks'))
+    else:
+        return redirect(url_for('login'))
 
 
 

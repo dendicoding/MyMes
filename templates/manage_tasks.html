@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Declare Task Pieces</h1>
+<form method="POST" action="{{ url_for('manage_tasks', task_id=task_id) }}">
+    <div class="form-group">
+        <label for="task_id_display">Task ID</label>
+        <!-- Campo di input di testo in sola lettura per mostrare il Task ID -->
+        <input type="text" id="task_id_display" class="form-control" readonly value="{{ task_id }}">
+        <!-- Campo nascosto per inviare il task_id nel form -->
+        <!-- <input type="hidden" id="task_id_hidden" name="task_id" value="{{ task_id }}"> -->
+    </div>
+    <div class="form-group">
+        <label for="good_pieces">Good Pieces</label>
+        <input type="number" id="good_pieces" name="good_pieces" min="0" required>
+    </div>
+    <div class="form-group">
+        <label for="scrap_pieces">Scrap Pieces</label>
+        <input type="number" id="scrap_pieces" name="scrap_pieces" min="0" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Task</button>
+</form>
+{% endblock %}
