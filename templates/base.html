@@ -6,6 +6,21 @@
     <title>My MES</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+    <style>
+        /* Stili specifici per il grafico */
+        .chart-container {
+            width: 150px;  /* Regola la dimensione del contenitore se necessario */
+            height: 150px; /* Regola la dimensione del contenitore se necessario */
+            position: relative;
+        }
+        #orderStatusChart {
+            width: 100% !important; /* Assicura che il canvas si adatti al contenitore */
+            height: 100% !important; /* Assicura che il canvas si adatti al contenitore */
+            display: block;
+        }
+    </style>
+
     <style>
         /* Stili per gli ordini */
         .order-status-pending {

@@ -494,6 +494,41 @@ def get_operators():
             cursor.close()
             connection.close()
 
+@app.route('/add_operator', methods=['GET', 'POST'])
+def add_operator():
+    if 'username' in session and session['role'] == 'manager':
+        if request.method == 'POST':
+            name = request.form['name']
+            # Recupera gli operatori esistenti dal database
+            existing_operators = [operator['operator_id'] for operator in get_operators()]
+            # Aggiungi l'operatore al database
+            insert_operator(name)  # Inserimento nel database
+            flash(f"Operator {name} added successfully!", 'success')
+        return render_template('add_operator.html')
+    else:
+        return redirect(url_for('login'))
+
+def insert_operator(name):
+    try:
+        connection = pyodbc.connect(CONNECTION_STRING)
+        cursor = connection.cursor()
+        
+        sql_insert_query = """INSERT INTO Operatori (name, status) VALUES (?, ?)"""
+        record_to_insert = (name, 'idle')
+        cursor.execute(sql_insert_query, record_to_insert)
+
+        connection.commit()
+        print(f"Record inserted successfully into Operatori table")
+
+    except Exception as error:
+        print(f"Failed to insert record into Operatori table {error}")
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+
 @app.route('/operators', methods=['GET'])
 def view_operators():
     if 'username' in session:

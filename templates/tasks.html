@@ -110,8 +110,7 @@
             <th class="order-id-column">Order ID</th>
             <th class="machine-id-column">Machine ID</th>
             <th class="status-column">Status</th>
-            <th class="operator-id-column">Operator ID</th>
-            <th class="operator-name-column">Operator Name</th>
+            <th class="operator-id-column">Operator</th>
             <th class="start-time-column">Start Time</th>
             <th class="end-time-column">End Time</th>
             {% if session.role == 'manager' %}
@@ -127,8 +126,7 @@
                 <td class="order-id-column">{{ task.order_id }}</td>
                 <td class="machine-id-column">{{ task.machine_id }}</td>
                 <td class="status-column">{{ task.status }}</td>
-                <td class="operator-id-column">{{ task.operator }}</td>
-                <td class="operator-name-column">{{ task.operator_name }}</td>
+                <td class="operator-id-column">{{ task.operator }} - {{ task.operator_name }}</td>
                 <td class="start-time-column">{{ task.start_time }}</td>
                 <td class="end-time-column">{{ task.end_time }}</td>
                 {% if session.role == 'manager' %}

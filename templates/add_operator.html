@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Add Operator</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Operator</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    </div>
+{% endblock %}

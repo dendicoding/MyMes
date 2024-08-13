@@ -12,8 +12,6 @@
                 <th>Residual Quantity</th>
                 <th>Requested Quantity</th>
                 <th>Status</th>
-                <th>Machine ID</th>
-                <th>Operator</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -25,8 +23,6 @@
                     <td>{{ order.quantity }}</td>
                     <td>{{ order.initial_quantity }}</td>
                     <td>{{ order.status }}</td>
-                    <td>{{ order.machine_id if order.machine_id else 'None' }}</td>
-                    <td>{{ order.operator_name if order.operator_name else 'None' }}</td>
                     <td>
                         {% if order.status == 'created' %}
                             <!-- Aggiungi il pulsante 'Emit' solo se l'ordine è in stato 'created' -->
