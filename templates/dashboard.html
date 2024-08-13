@@ -6,8 +6,25 @@
 <!-- Aggiungi il canvas per il grafico a torta con dimensioni ridotte -->
 <div class="dashboard">
     <h2>Order Status Distribution</h2>
-    <div style="width: 50%; max-width: 400px; margin: auto;">
-        <canvas id="orderStatusPieChart" width="300" height="300"></canvas>
+    <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <canvas id="orderStatusPieChart" width="300" height="300"></canvas>
+        </div>
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Order Details</h2>
+            <div>
+                <label for="orderSelect">Select Order:</label>
+                <select id="orderSelect">
+                    <option value="" disabled selected>Select an Order</option>
+                    {% for order in orders %}
+                        <option value="{{ order.order_id }}" data-quantity="{{ order.quantity }}" data-initial_quantity="{{ order.initial_quantity }}">
+                            {{ order.order_id }} - {{ order.product }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <canvas id="orderComparisonBarChart" width="400" height="300"></canvas>
+        </div>
     </div>
 
     <!-- Sezione per la visualizzazione degli ordini e delle macchine -->
@@ -119,11 +136,11 @@
         const statusDistribution = getOrderStatusDistribution(orders);
 
         // Configurazione del grafico a torta
-        const ctx = document.getElementById('orderStatusPieChart').getContext('2d');
-        new Chart(ctx, {
+        const ctxPie = document.getElementById('orderStatusPieChart').getContext('2d');
+        new Chart(ctxPie, {
             type: 'pie',
             data: {
-                labels: ['Created', 'Emitted', 'In Progress', 'Suspended','Completed'],
+                labels: ['Created', 'Emitted', 'In Progress', 'Suspended', 'Completed'],
                 datasets: [{
                     label: 'Order Status Distribution',
                     data: [
@@ -153,6 +170,38 @@
                     }
                 }
             }
+        });
+
+        // Configurazione del grafico a barre
+        const ctxBar = document.getElementById('orderComparisonBarChart').getContext('2d');
+        const barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Requested Quantity', 'Produced Quantity'],
+                datasets: [{
+                    label: 'Amount',
+                    data: [0, 0], // Initialize with dummy data
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Aggiornamento del grafico a barre basato sulla selezione dell'ordine
+        document.getElementById('orderSelect').addEventListener('change', function (event) {
+            const selectedOption = event.target.selectedOptions[0];
+            const quantity = selectedOption.getAttribute('data-quantity');
+            const initialQuantity = selectedOption.getAttribute('data-initial_quantity');
+
+            barChart.data.datasets[0].data = [initialQuantity, (initialQuantity - quantity)];
+            barChart.update();
         });
     });
 </script>
