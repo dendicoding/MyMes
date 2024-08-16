@@ -6,6 +6,8 @@
     <title>{% block title %}My MES{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}"> -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}" />
+
 
     {% block head %}
     <style>
@@ -56,6 +58,17 @@
         .task-status-suspended {
             background-color: #ffc107 !important; /* Rosso */
         }
+        /* Stili per l'icona */
+        
+        .navbar img {
+            height: 70px; /* Altezza dell'icona uguale all'altezza della barra di navigazione */
+            margin-right: 10px; /* Spazio tra icona e testo */
+            margin-bottom: -60px; 
+            margin-top: -10px; 
+            display: block; /* Evita spazi indesiderati sotto l'immagine */
+            object-fit: contain; /* Mantiene le proporzioni dell'immagine */
+            
+        }
         
     </style>
     {% endblock %}
@@ -63,6 +76,7 @@
 <body>
     {% if not hide_nav %}
     <div class="navbar">
+        <img src="{{ url_for('static', filename='icon.png') }}" alt="Site Icon">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('orders') }}">Orders</a>
         <a href="{{ url_for('tasks') }}">Tasks</a>
