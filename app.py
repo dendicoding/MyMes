@@ -975,13 +975,17 @@ def update_task_schedule():
 @app.route('/tasks_json')
 def get_task_list():
     if 'username' in session:
-        tasks = get_tasks()  # Get tasks from the database
+        tasks = get_tasks()  # Ottieni i task dal database
+        
+        # Filtra i task il cui status non è 'completed'
+        filtered_tasks = [task for task in tasks if task.get('status') != 'completed']
+        
         task_list = [
             {
                 'id': task['task_id'],
                 'title': task['task']
             }
-            for task in tasks
+            for task in filtered_tasks
         ]
         return jsonify(task_list)
     else:
