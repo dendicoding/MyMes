@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Task Scheduler
+{% endblock %}
+
+{% block head %}
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.0.0/index.min.css' rel='stylesheet' />
+    <style>
+        /* Stile del contenitore del calendario */
+        #calendar {
+            width: 100%;
+            min-height: 700px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 60px;
+        }
+
+        /* Stile della lista dei task */
+        #task-list {
+            width: 170px;
+            margin-top: 20px;
+        }
+
+        /* Stile degli elementi della lista dei task */
+        .task-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            cursor: grab;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        .task-item:hover {
+            background-color: #e2e6ea;
+            transform: scale(1.05);
+        }
+
+        /* Allineamento orizzontale tra lista dei task e calendario */
+        .row {
+            display: flex;
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .col-md-10 {
+            flex: 1;
+        }
+
+        /* Stile del pulsante di eliminazione */
+        /* Stile del pulsante di eliminazione all'interno del riquadro del task */
+        .fc-event-delete-button {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 3px 6px;
+            font-size: 12px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <div id="task-list" class="card p-3">
+                    <h5 class="card-title">Tasks</h5>
+                    <!-- Task list will be populated here -->
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div id="calendar" class="card"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.0.0/index.global.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const taskListEl = document.getElementById('task-list');
+
+            // Initialize FullCalendar
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                editable: true,
+                droppable: true,
+                height: 500,
+                slotDuration: '00:15:00',
+                slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, // 24-hour format
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, // 24-hour format
+                eventResizableFromStart: true,
+                timeZone: 'local', // Usa il fuso orario locale del browser
+                allDaySlot: false, // Disabilita lo slot "All Day"
+                events: '/scheduler/events',
+                eventDrop: function(info) {
+                    updateTaskSchedule(info.event.id, info.event.start, info.event.end);
+                },
+                eventResize: function(info) {
+                    updateTaskSchedule(info.event.id, info.event.start, info.event.end);
+                },
+                eventDidMount: function(info) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.classList.add('fc-event-delete-button');
+                    deleteButton.addEventListener('click', function() {
+                        if (confirm('Are you sure you want to delete this task?')) {
+                            deleteEvent(info.event.id);
+                        }
+                    });
+                    
+                    // Posiziona il pulsante delete all'interno del riquadro dell'evento
+                    info.el.style.position = 'relative';
+                    info.el.appendChild(deleteButton);
+                },
+                eventReceive: function(info) {
+                    const taskId = info.event.id;
+                    const start = info.event.start;
+                    const end = info.event.end;
+
+                    updateTaskSchedule(taskId, start, end);
+                }
+            });
+
+            calendar.render();
+
+            fetch('/tasks_json')
+                .then(response => response.json())
+                .then(tasks => {
+                    tasks.forEach(task => {
+                        const taskEl = document.createElement('div');
+                        taskEl.classList.add('task-item');
+                        taskEl.textContent = task.title;
+                        taskEl.setAttribute('data-task-id', task.id);
+                        taskEl.setAttribute('draggable', true);
+
+                        taskEl.addEventListener('dragstart', function(event) {
+                            event.dataTransfer.setData('text/plain', task.id);
+                        });
+
+                        taskListEl.appendChild(taskEl);
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to load tasks:', error);
+                });
+
+            calendarEl.addEventListener('dragover', function(event) {
+                event.preventDefault();
+            });
+
+            calendarEl.addEventListener('drop', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const taskId = event.dataTransfer.getData('text/plain');
+                const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+
+                if (!taskElement) return;
+
+                const taskTitle = taskElement.textContent;
+                const start = calendar.getDate();
+                const end = new Date(start);
+                end.setHours(start.getHours() + 1); // Assuming a default duration of 1 hour
+
+                calendar.addEvent({
+                    id: taskId,
+                    title: taskTitle,
+                    start: start,
+                    end: end,
+                });
+
+                updateTaskSchedule(taskId, start, end);
+            });
+
+            function updateTaskSchedule(taskId, start, end) {
+                const startUTC = new Date(start.getTime() - start.getTimezoneOffset() * 60000).toISOString();
+                const endUTC = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString();
+
+                fetch('/update_task_schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task_id: taskId,
+                        prog_start_time: startUTC,
+                        prog_end_time: endUTC
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Task schedule updated successfully!');
+                    } else {
+                        alert('Failed to update task schedule.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
+            function deleteEvent(taskId) {
+                fetch('/delete_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task_id: taskId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        calendar.getEventById(taskId).remove();
+                        alert('Task deleted successfully!');
+                    } else {
+                        alert('Failed to delete task.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+});
+
+    </script>
+{% endblock %}

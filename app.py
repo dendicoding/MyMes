@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from datetime import datetime
 import pyodbc
 from config import CONNECTION_STRING
@@ -705,7 +705,9 @@ def get_tasks():
                 'cost': row.cost,
                 'task': row.task,
                 'operator': row.operator,  # Include the operator field
-                'operator_name': row.operator_name
+                'operator_name': row.operator_name,
+                'prog_start_time': row.prog_start_time,
+                'prog_end_time': row.prog_end_time
             })
 
         return tasks_list
@@ -719,7 +721,7 @@ def get_tasks():
             cursor.close()
             connection.close()
 
-def update_task(task_id, status=None, operator=None, start_time=None, end_time=None, machine_id=None, operator_name=None):
+def update_task(task_id, status=None, operator=None, start_time=None, end_time=None, machine_id=None, operator_name=None, prog_start_time=None, prog_end_time=None):
     try:
         connection = pyodbc.connect(CONNECTION_STRING)
         cursor = connection.cursor()
@@ -751,6 +753,15 @@ def update_task(task_id, status=None, operator=None, start_time=None, end_time=N
         if machine_id is not None:
             update_values.append(machine_id)
             update_columns.append("machine_id = ?")
+
+        #if prog_start_time is not None:
+        update_values.append(prog_start_time)
+        update_columns.append("prog_start_time = ?")
+
+        #if prog_end_time is not None:
+        update_values.append(prog_end_time)
+        update_columns.append("prog_end_time = ?")
+
 
 
         # Aggiungi l'ID del task alla fine della lista dei valori
@@ -860,7 +871,7 @@ def manage_tasks(task_id):
                     if good_pieces >= 0 and scrap_pieces >= 0:
                         new_quantity = order['quantity'] - good_pieces + scrap_pieces
                         if new_quantity < 0:
-                            flash('La quantità risultante non può essere negativa.', 'error')
+                            flash('The resulting quantity cannot be negative.', 'error')
                         else:
                             # Aggiorna la quantità dell'ordine
                             update_order_quantity(order_id, new_quantity)
@@ -872,15 +883,15 @@ def manage_tasks(task_id):
                                 machine_id = task.get("machine_id")
                                 if machine_id:
                                     update_machine(machine_id, status='idle', current_order='None', current_task='None')
-                                flash(f'Task {task_id} completato e ordine {order_id} completato.', 'success')
+                                flash(f'Task {task_id} completed and order {order_id} completed.', 'success')
                             else:
-                                flash(f'Task {task_id} aggiornato con {good_pieces} buoni e {scrap_pieces} scarti.', 'success')
+                                flash(f'Task {task_id} updated with {good_pieces} good pieces e {scrap_pieces} scrap pieces.', 'success')
                     else:
-                        flash('Valori non validi per buoni o scarti.', 'error')
+                        flash('Invalid Values for Good pieces and Scrap Pieces.', 'error')
                 else:
-                    flash('Ordine associato non trovato.', 'error')
+                    flash('Related Order not found.', 'error')
             else:
-                flash('Task non trovato.', 'error')
+                flash('Task not found.', 'error')
 
         elif request.method == 'GET':
             # Ottieni i dettagli del task
@@ -890,11 +901,89 @@ def manage_tasks(task_id):
             if task:
                 return render_template('manage_tasks.html', task_id=task_id)
             else:
-                flash('Task non trovato.', 'error')
+                flash('Task not found.', 'error')
                 return redirect(url_for('tasks'))  # Redirigi alla pagina dei task
 
         # Reindirizza alla pagina dei task se la richiesta non è POST né GET valida
         return redirect(url_for('tasks'))
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/scheduler')
+def scheduler():
+    if 'username' in session:
+        return render_template('scheduler.html')
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/scheduler/events')
+def scheduler_events():
+    if 'username' in session:
+        tasks = get_tasks()  # Get tasks from the database
+        # Convert the tasks to a format compatible with FullCalendar
+        task_events = [
+            {
+                'id': task['task_id'],
+                'title': task['task'],
+                'start': task['prog_start_time'].isoformat() if task['prog_start_time'] else None,
+                'end': task['prog_end_time'].isoformat() if task['prog_end_time'] else None
+            }
+            for task in tasks
+        ]
+        return jsonify(task_events)
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/delete_task', methods=['POST'])
+def delete_task():
+    if 'username' in session and session['role'] == 'manager':
+        data = request.json
+        task_id = data.get('task_id')
+        
+        if not task_id:
+            return jsonify({'success': False, 'error': 'Task ID is required'}), 400
+        
+        try:
+            # Chiamata alla funzione per aggiornare il task, impostando gli orari a NULL
+            update_task(task_id, prog_start_time=None, prog_end_time=None)
+            return jsonify({'success': True})
+        except Exception as e:
+            print(f"Failed to update task schedule: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 400
+    else:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+    
+@app.route('/update_task_schedule', methods=['POST'])
+def update_task_schedule():
+    if 'username' in session and session['role'] == 'manager':
+        data = request.json
+        task_id = data.get('task_id')
+        prog_start_time = datetime.fromisoformat(data.get('prog_start_time'))
+        prog_end_time = datetime.fromisoformat(data.get('prog_end_time'))
+
+        try:
+            update_task(task_id, prog_start_time=prog_start_time, prog_end_time=prog_end_time)
+            return jsonify({'success': True})
+        except Exception as e:
+            print(f"Failed to update task schedule: {e}")
+            return jsonify({'success': False, 'error': str(e)}), 400
+    else:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
+@app.route('/tasks_json')
+def get_task_list():
+    if 'username' in session:
+        tasks = get_tasks()  # Get tasks from the database
+        task_list = [
+            {
+                'id': task['task_id'],
+                'title': task['task']
+            }
+            for task in tasks
+        ]
+        return jsonify(task_list)
     else:
         return redirect(url_for('login'))
 

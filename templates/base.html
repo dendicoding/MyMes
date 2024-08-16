@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My MES</title>
+    <title>{% block title %}My MES{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}"> -->
 
+    {% block head %}
     <style>
         /* Stili specifici per il grafico */
         .chart-container {
@@ -19,9 +20,7 @@
             height: 100% !important; /* Assicura che il canvas si adatti al contenitore */
             display: block;
         }
-    </style>
 
-    <style>
         /* Stili per gli ordini */
         .order-status-pending {
             background-color: #ffc107 !important; /* Giallo */
@@ -57,15 +56,17 @@
         .task-status-suspended {
             background-color: #ffc107 !important; /* Rosso */
         }
+        
     </style>
+    {% endblock %}
 </head>
 <body>
     {% if not hide_nav %}
     <div class="navbar">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
         <a href="{{ url_for('orders') }}">Orders</a>
-        <!-- <a href="{{ url_for('manage_orders') }}">Manage Orders</a> -->
         <a href="{{ url_for('tasks') }}">Tasks</a>
+        <a href="{{ url_for('scheduler') }}">Scheduler</a>
         <a href="{{ url_for('report') }}">Report</a>
         <a href="{{ url_for('view_machines') }}">Machines</a>
         <a href="{{ url_for('view_operators') }}">Operators</a>
@@ -85,5 +86,9 @@
         {% block content %}
         {% endblock %}
     </div>
+
+    {% block scripts %}
+    <!-- Puoi aggiungere script specifici qui -->
+    {% endblock %}
 </body>
 </html>
