@@ -69,7 +69,10 @@
             cursor: pointer;
             padding: 3px 6px;
             font-size: 12px;
+            z-index: 1000; /* Assicurati che il pulsante sia in primo piano */
+            pointer-events: auto; /* Assicurati che il pulsante possa ricevere clic */
         }
+
 
     </style>
 {% endblock %}
@@ -96,6 +99,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
             const taskListEl = document.getElementById('task-list');
+
+            // Colori predefiniti per i task
+            const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#FF69B4', '#8A2BE2', '#FF4500', '#00CED1', '#7FFF00'];
+
+            // Funzione per ottenere un colore casuale dall'array
+            function getRandomColor() {
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
 
             // Initialize FullCalendar
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -145,17 +156,31 @@
                 .then(response => response.json())
                 .then(tasks => {
                     tasks.forEach(task => {
+                        const taskColor = getRandomColor(); // Genera un colore casuale per ogni task
+
+                        // Crea un elemento nella lista dei task
                         const taskEl = document.createElement('div');
                         taskEl.classList.add('task-item');
                         taskEl.textContent = task.title;
                         taskEl.setAttribute('data-task-id', task.id);
                         taskEl.setAttribute('draggable', true);
+                        taskEl.style.backgroundColor = taskColor; // Applica il colore al task
 
                         taskEl.addEventListener('dragstart', function(event) {
                             event.dataTransfer.setData('text/plain', task.id);
                         });
 
                         taskListEl.appendChild(taskEl);
+
+                        // Crea un evento nel calendario con lo stesso colore
+                        calendar.addEvent({
+                            id: task.id,
+                            title: task.title,
+                            start: task.start_time, // Assuming tasks have start_time field
+                            end: task.end_time, // Assuming tasks have end_time field
+                            backgroundColor: taskColor, // Applica il colore all'evento nel calendario
+                            borderColor: taskColor
+                        });
                     });
                 })
                 .catch(error => {
@@ -176,6 +201,7 @@
                 if (!taskElement) return;
 
                 const taskTitle = taskElement.textContent;
+                const taskColor = taskElement.style.backgroundColor; // Recupera il colore del task
                 const start = calendar.getDate();
                 const end = new Date(start);
                 end.setHours(start.getHours() + 1); // Assuming a default duration of 1 hour
@@ -185,6 +211,8 @@
                     title: taskTitle,
                     start: start,
                     end: end,
+                    backgroundColor: taskColor, // Applica il colore all'evento nel calendario
+                    borderColor: taskColor
                 });
 
                 updateTaskSchedule(taskId, start, end);
@@ -241,7 +269,8 @@
                     console.error('Error:', error);
                 });
             }
-});
+        });
+
 
     </script>
 {% endblock %}
