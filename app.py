@@ -1013,6 +1013,13 @@ def get_task_list():
     else:
         return redirect(url_for('login'))
 
+@app.route('/machines_json', methods=['GET'])
+def machines_json():
+    machines = get_machines()  # Ottieni i dati delle macchine come dizionari
+    machines_data = [{"id": machine["id"], "name": machine["machine_id"]} for machine in machines]
+    
+    return jsonify({"data": machines_data})
+
 
 
 

@@ -71,7 +71,7 @@
         .gantt_cal_light .gantt_duration,
         .gantt_cal_light .gantt_select,
         .gantt_cal_light textarea {
-            margin-bottom: 10px; /* Spazio tra gli elementi della lightbox */
+            margin-bottom: 30px; /* Spazio tra gli elementi della lightbox */
         }
 
         /* Assicurati che il contenuto della lightbox non superi i bordi */
@@ -118,44 +118,54 @@
             gantt.config.details_on_create = true;
             gantt.config.details_on_dblclick = true;
             gantt.config.details_on_edit = true;
+
+            
             
             gantt.config.lightbox.sections = [
-                {name:"time",type:"duration",map_to:"auto",time_format:["%d","%m","%Y","%H:%i"]}
+                {name:"time",type:"duration",map_to:"auto",time_format:["%d","%m","%Y","%H:%i"]},
+                {name: "machine", height: 44, type: "select", map_to: "machine", options: []},  // Placeholder for options
             ];
-            
-            gantt.templates.time_picker = function(date){
-                return gantt.date.date_to_str(gantt.config.time_picker)(date);
-            };
+            gantt.locale.labels.section_machine = "Assign Task to Machine";
             
             gantt.init("gantt_here");
 
-            // Carica i task esistenti
-            fetch('/tasks_json')
-                .then(response => response.json())
-                .then(data => {
-                    const ganttData = data.data.filter(task => 
-                        new Date(task.start_date).getFullYear() !== 1900
-                    );
+            // Carica i dati
+            Promise.all([
+                fetch('/tasks_json').then(response => response.json()),
+                fetch('/machines_json').then(response => response.json())
+            ]).then(([tasksData, machinesData]) => {
+                // Filtra i dati dei task
+                const ganttData = tasksData.data.filter(task => 
+                    new Date(task.start_date).getFullYear() !== 1900
+                );
 
-                    gantt.parse({ data: ganttData });
+                gantt.parse({ data: ganttData });
 
-                    data.data.forEach(task => {
-                        const taskEl = document.createElement('div');
-                        taskEl.classList.add('task-item');
-                        taskEl.textContent = task.text;
-                        taskEl.setAttribute('data-task-id', task.id);
-                        taskEl.setAttribute('draggable', true);
+                // Popola la lista dei task
+                tasksData.data.forEach(task => {
+                    const taskEl = document.createElement('div');
+                    taskEl.classList.add('task-item');
+                    taskEl.textContent = task.text;
+                    taskEl.setAttribute('data-task-id', task.id);
+                    taskEl.setAttribute('draggable', true);
 
-                        taskEl.addEventListener('dragstart', function(event) {
-                            event.dataTransfer.setData('text/plain', task.id);
-                        });
-
-                        document.getElementById('task-list').appendChild(taskEl);
+                    taskEl.addEventListener('dragstart', function(event) {
+                        event.dataTransfer.setData('text/plain', task.id);
                     });
-                })
-                .catch(error => {
-                    console.error('Failed to load tasks:', error);
+
+                    document.getElementById('task-list').appendChild(taskEl);
                 });
+
+                // Configura le opzioni del menu a tendina
+                gantt.config.lightbox.sections[1].options = 
+                    machinesData.data.map(machine => ({
+                        key: machine.id,
+                        label: machine.name
+                    }));
+            }).catch(error => {
+                console.error('Failed to load tasks or machines:', error);
+            });
+
 
             document.getElementById('gantt_here').addEventListener('dragover', function(event) {
                 event.preventDefault();
