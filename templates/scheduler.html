@@ -1,39 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}
-    My Mes
-{% endblock %}
-
-{% block head %}
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.0.0/index.min.css' rel='stylesheet' />
+{% block content %}
+    <link href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* Stile generale della pagina */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
 
-        /* Stile del contenitore del calendario */
-        /* Stile del contenitore del calendario */
-        #calendar {
-            width: calc(100% - 20px); /* Riduce la larghezza del calendario per lasciare spazio ai bordi */
-            max-width: 1400px; /* Imposta una larghezza massima per evitare che il calendario diventi troppo largo su schermi grandi */
-            min-height: 700px;
+    <style>
+        #gantt_here {
+            width: 100%;
+            height: 600px;
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-top: 20px;
-            position: relative;
-            overflow: auto; /* Nasconde il contenuto che esce dai bordi del calendario */
+            margin-top: 40px;
         }
 
-
-        /* Stile della lista dei task */
         #task-list {
             width: 220px;
             margin-top: 20px;
@@ -43,7 +23,6 @@
             padding: 15px;
         }
 
-        /* Stile degli elementi della lista dei task */
         .task-item {
             padding: 12px;
             border: 1px solid #e0e0e0;
@@ -60,7 +39,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Allineamento orizzontale tra lista dei task e calendario */
         .row {
             display: flex;
             width: 100%;
@@ -76,272 +54,142 @@
         .col-md-10 {
             flex: 1;
         }
-
-        /* Stile del pulsante di eliminazione all'interno del riquadro del task */
-        .fc-event-delete-button {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            padding: 5px 8px;
-            font-size: 12px;
-            z-index: 1000;
-            transition: background 0.2s;
+        /* Stili per il div.gantt_duration nella lightbox */
+        /* Allarga il contenitore della lightbox */
+        .gantt_cal_light {
+            width: 1000px; /* Aumenta la larghezza a tua preferenza */
         }
 
-        .fc-event-delete-button:hover {
-            background: #e60000;
+        /* Stili per il div.gantt_duration nella lightbox */
+        .gantt_cal_light .gantt_duration {
+            float: right; /* Allinea a destra */
+            margin-left: 10px; /* Spazio tra la durata e gli altri elementi */
+            margin-right: 170px; /* Spazio tra la durata e il bordo destro della lightbox */
         }
 
-        /* Stile per il pulsante di cambio vista */
-        #switch-view-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 12px 18px;
-            cursor: pointer;
-            font-size: 16px;
-            z-index: 1000;
-            transition: background 0.2s;
+        /* Opzionale: aggiustamenti per gli altri elementi della lightbox */
+        .gantt_cal_light .gantt_duration,
+        .gantt_cal_light .gantt_select,
+        .gantt_cal_light textarea {
+            margin-bottom: 10px; /* Spazio tra gli elementi della lightbox */
         }
 
-        #switch-view-button:hover {
-            background-color: #0056b3;
+        /* Assicurati che il contenuto della lightbox non superi i bordi */
+        .gantt_cal_light .gantt_cal_header,
+        .gantt_cal_light .gantt_cal_body,
+        .gantt_cal_light .gantt_cal_footer {
+            padding: 0; /* Rimuovi il padding per una visualizzazione uniforme */
         }
 
-        /* Nascondi il pulsante di cambio vista nella vista mensile */
-        .fc-dayGridMonth .fc-dayGridMonth-view #switch-view-button {
-            display: none;
-        }
+        
+        
 
-        /* Stile per il titolo del calendario */
-        .fc-toolbar-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #333;
-        }
+        
     </style>
-{% endblock %}
 
-{% block content %}
     <div class="container">
         <div class="row">
             <div class="col-md-2">
                 <div id="task-list" class="card">
                     <h5 class="card-title">Tasks</h5>
-                    <!-- Task list will be populated here -->
+                    <!-- La lista dei task verrà popolata qui -->
                 </div>
             </div>
             <div class="col-md-10">
-                <button id="switch-view-button">Switch to Month View</button>
-                <div id="calendar" class="card"></div>
+                <div id="gantt_here"></div>
             </div>
         </div>
     </div>
-{% endblock %}
 
-{% block scripts %}
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.0.0/index.global.min.js'></script>
+    <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const calendarEl = document.getElementById('calendar');
-            const taskListEl = document.getElementById('task-list');
-            const switchViewButton = document.getElementById('switch-view-button');
+            // Configura il diagramma di Gantt
+            gantt.config.xml_date = "%Y-%m-%d %H:%i";
+            gantt.config.scale_unit = "day";
+            gantt.config.date_scale = "%d %M";
+            gantt.config.min_column_width = 50;
+            gantt.config.drag_move = true;
+            gantt.config.drag_resize = true;
+            gantt.config.auto_scheduling = true;
+            gantt.config.order_branch = true;
+            gantt.config.order_branch_free = true;
+            gantt.config.task_text = "text";
+            gantt.config.details_on_create = true;
+            gantt.config.details_on_dblclick = true;
+            gantt.config.details_on_edit = true;
+            
+            gantt.config.lightbox.sections = [
+                {name:"time",type:"duration",map_to:"auto",time_format:["%d","%m","%Y","%H:%i"]}
+            ];
+            
+            gantt.templates.time_picker = function(date){
+                return gantt.date.date_to_str(gantt.config.time_picker)(date);
+            };
+            
+            gantt.init("gantt_here");
 
-            // Colori predefiniti per i task
-            const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#FF69B4', '#8A2BE2', '#FF4500', '#00CED1', '#7FFF00'];
-
-            // Funzione per ottenere un colore casuale dall'array
-            function getRandomColor() {
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-
-            // Initialize FullCalendar
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                editable: true,
-                droppable: true,
-                height: 500,
-                slotDuration: '00:15:00',
-                slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, // 24-hour format
-                eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, // 24-hour format
-                eventResizableFromStart: true,
-                timeZone: 'local', // Usa il fuso orario locale del browser
-                allDaySlot: false, // Disabilita lo slot "All Day"
-                events: '/scheduler/events',
-                eventDrop: function(info) {
-                    updateTaskSchedule(info.event.id, info.event.start, info.event.end);
-                },
-                eventResize: function(info) {
-                    updateTaskSchedule(info.event.id, info.event.start, info.event.end);
-                },
-                eventDidMount: function(info) {
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.classList.add('fc-event-delete-button');
-                    deleteButton.addEventListener('click', function() {
-                        if (confirm('Are you sure you want to delete this task?')) {
-                            deleteEvent(info.event.id);
-                        }
-                    });
-
-                    // Posiziona il pulsante delete all'interno del riquadro dell'evento
-                    info.el.style.position = 'relative';
-                    info.el.appendChild(deleteButton);
-                },
-                eventReceive: function(info) {
-                    const taskId = info.event.id;
-                    const start = info.event.start;
-                    const end = info.event.end;
-
-                    // Aggiorna la pianificazione del task
-                    updateTaskSchedule(taskId, start, end);
-                },
-                dateClick: function(info) {
-                    // Cambia la vista a timeGridDay quando si clicca su un giorno
-                    calendar.changeView('timeGridDay', info.dateStr);
-                },
-                viewDidMount: function(view) {
-                    if (view.view.type === 'timeGridDay') {
-                        switchViewButton.style.display = 'block'; // Mostra il pulsante in vista giornaliera
-                    } else {
-                        switchViewButton.style.display = 'none'; // Nascondi il pulsante in altre viste
-                    }
-                }
-            });
-
-            calendar.render();
-
+            // Carica i task esistenti
             fetch('/tasks_json')
                 .then(response => response.json())
-                .then(tasks => {
-                    tasks.forEach(task => {
-                        const taskColor = getRandomColor(); // Genera un colore casuale per ogni task
+                .then(data => {
+                    const ganttData = data.data.filter(task => 
+                        new Date(task.start_date).getFullYear() !== 1900
+                    );
 
-                        // Crea un elemento nella lista dei task
+                    gantt.parse({ data: ganttData });
+
+                    data.data.forEach(task => {
                         const taskEl = document.createElement('div');
                         taskEl.classList.add('task-item');
-                        taskEl.textContent = task.title;
+                        taskEl.textContent = task.text;
                         taskEl.setAttribute('data-task-id', task.id);
                         taskEl.setAttribute('draggable', true);
-                        taskEl.style.backgroundColor = taskColor; // Applica il colore al task
 
                         taskEl.addEventListener('dragstart', function(event) {
                             event.dataTransfer.setData('text/plain', task.id);
                         });
 
-                        taskListEl.appendChild(taskEl);
-
-                        // Crea un evento nel calendario con una data passata di default
-                        calendar.addEvent({
-                            id: task.id,
-                            title: task.title,
-                            start: '1900-01-01T00:00:00', // Data molto lontana nel passato
-                            end: '1900-01-01T01:00:00', // Durata di default
-                            backgroundColor: taskColor, // Applica il colore all'evento nel calendario
-                            borderColor: taskColor
-                        });
+                        document.getElementById('task-list').appendChild(taskEl);
                     });
                 })
                 .catch(error => {
                     console.error('Failed to load tasks:', error);
                 });
 
-            calendarEl.addEventListener('dragover', function(event) {
+            document.getElementById('gantt_here').addEventListener('dragover', function(event) {
                 event.preventDefault();
             });
 
-            calendarEl.addEventListener('drop', function(event) {
+            document.getElementById('gantt_here').addEventListener('drop', function(event) {
                 event.preventDefault();
-                event.stopPropagation();
-
                 const taskId = event.dataTransfer.getData('text/plain');
-                const taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
 
-                if (!taskElement) return;
+                if (taskId) {
+                    const start = gantt.getState().drag_start_date || new Date();
+                    const end = gantt.date.add(start, 1, "day");
 
-                const taskTitle = taskElement.textContent;
-                const taskColor = taskElement.style.backgroundColor; // Recupera il colore del task
-                const start = calendar.getDate();
-                const end = new Date(start);
-                end.setHours(start.getHours() + 1); // Assuming a default duration of 1 hour
-
-                calendar.addEvent({
-                    id: taskId,
-                    title: taskTitle,
-                    start: start,
-                    end: end,
-                    backgroundColor: taskColor, // Applica il colore all'evento nel calendario
-                    borderColor: taskColor
-                });
-
-                updateTaskSchedule(taskId, start, end);
+                    gantt.addTask({
+                        id: taskId,
+                        text: document.querySelector(`[data-task-id="${taskId}"]`).textContent,
+                        start_date: start,
+                        duration: gantt.calculateDuration(start, end),
+                        progress: 0
+                    });
+                }
             });
 
-            switchViewButton.addEventListener('click', function() {
-                calendar.changeView('dayGridMonth'); // Cambia alla vista mensile
+            gantt.attachEvent("onTaskDrag", function(id) {
+                const task = gantt.getTask(id);
+                // Optional: implement logic to handle task drag
             });
 
-            function updateTaskSchedule(taskId, start, end) {
-                const startUTC = new Date(start.getTime() - start.getTimezoneOffset() * 60000).toISOString();
-                const endUTC = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString();
-
-                fetch('/update_task_schedule', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        task_id: taskId,
-                        prog_start_time: startUTC,
-                        prog_end_time: endUTC
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Task schedule updated successfully!');
-                    } else {
-                        alert('Failed to update task schedule.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-
-            function deleteEvent(taskId) {
-                fetch('/delete_task', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        task_id: taskId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        calendar.getEventById(taskId).remove();
-                        alert('Task deleted successfully!');
-                    } else {
-                        alert('Failed to delete task.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
+            gantt.attachEvent("onTaskResize", function(id, task) {
+                // Optional: implement logic to handle task resize
+            });
         });
 
+
     </script>
+    
 {% endblock %}

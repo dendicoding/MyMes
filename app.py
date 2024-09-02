@@ -972,6 +972,12 @@ def update_task_schedule():
     else:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
+from flask import jsonify, redirect, url_for
+from datetime import datetime
+
+from flask import jsonify, redirect, url_for
+from datetime import datetime
+
 @app.route('/tasks_json')
 def get_task_list():
     if 'username' in session:
@@ -980,16 +986,35 @@ def get_task_list():
         # Filtra i task il cui status non è 'completed'
         filtered_tasks = [task for task in tasks if task.get('status') != 'completed']
         
-        task_list = [
-            {
+        task_list = []
+        default_start_date = datetime(1900, 1, 1, 0, 0)  # Data di default molto indietro nel tempo
+        default_end_date = datetime(1900, 1, 1, 0, 0)  # Data di default molto indietro nel tempo
+
+        for task in filtered_tasks:
+            # Usa la data di default se start_date o end_date sono None
+            start_date = task.get('prog_start_time') or default_start_date
+            end_date = task.get('prog_end_time') or default_end_date
+
+            # Assicurati che start_date e end_date siano oggetti datetime
+            if isinstance(start_date, str):
+                start_date = datetime.fromisoformat(start_date)
+            if isinstance(end_date, str):
+                end_date = datetime.fromisoformat(end_date)
+
+            task_list.append({
                 'id': task['task_id'],
-                'title': task['task']
-            }
-            for task in filtered_tasks
-        ]
-        return jsonify(task_list)
+                'text': task['task'],
+                'start_date': start_date.strftime('%Y-%m-%d %H:%M'),
+                'end_date': end_date.strftime('%Y-%m-%d %H:%M'),
+                'progress': task.get('progress', 0)  # Assumi default 0 se non specificato
+            })
+
+        return jsonify({"data": task_list})
     else:
         return redirect(url_for('login'))
+
+
+
 
 
 
