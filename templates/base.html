@@ -5,71 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My MES{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}"> -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}" />
-
 
     {% block head %}
     <style>
-        /* Stili specifici per il grafico */
-        .chart-container {
-            width: 150px;  /* Regola la dimensione del contenitore se necessario */
-            height: 150px; /* Regola la dimensione del contenitore se necessario */
+        /* Stili per il dropdown */
+        .dropdown {
             position: relative;
+            display: inline-block;
         }
-        #orderStatusChart {
-            width: 100% !important; /* Assicura che il canvas si adatti al contenitore */
-            height: 100% !important; /* Assicura che il canvas si adatti al contenitore */
+
+        /* Bottone del dropdown */
+        .dropbtn {
+            font-size: 18px;
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 20px;
+            background-color: inherit;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropbtn:hover {
+            background-color: #003f7f; /* Colore di sfondo al passaggio del mouse */
+        }
+
+        /* Contenuto del dropdown */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 180px;
+            border-radius: 8px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Link del dropdown */
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
             display: block;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Stili per gli ordini */
-        .order-status-pending {
-            background-color: #ffc107 !important; /* Giallo */
-        }
-        .order-status-in-progress {
-            background-color: #28a745 !important; /* Verde */
-        }
-        .order-status-completed {
-            background-color: #6c757d !important; /* Grigio */
-        }
-        .order-status-suspended {
-            background-color: #ffc107 !important; /* Giallo */
+        .dropdown-content a:hover {
+            background-color: #0056b3;
+            color: white;
         }
 
-        /* Stili per le macchine */
-        .machine-status-idle {
-            background-color: #ffc107 !important; /* Grigio chiaro */
-        }
-        .machine-status-working {
-            background-color: #28a745 !important; /* Verde */
+        /* Mostra il dropdown al passaggio del mouse */
+        .dropdown:hover .dropdown-content {
+            display: block;
+            opacity: 1;
         }
 
-        /* Stili per i task */
-        .task-status-pending {
-            background-color: #ffc107 !important; /* Giallo */
+        /* Bottone e link con bordi arrotondati e ombra */
+        .dropbtn, .dropdown-content a {
+            border-radius: 8px;
         }
-        .task-status-in-progress {
-            background-color: #28a745 !important; /* Azzurro */
-        }
-        .task-status-completed {
-            background-color: #6c757d !important; /* Verde */
-        }
-        .task-status-suspended {
-            background-color: #ffc107 !important; /* Rosso */
-        }
-        /* Stili per l'icona */
-        
+
+        /* Stili per l'icona della navbar */
         .navbar img {
-            height: 70px; /* Altezza dell'icona uguale all'altezza della barra di navigazione */
+            height: 70px; /* Altezza dell'icona */
             margin-right: 10px; /* Spazio tra icona e testo */
-            margin-bottom: -60px; 
-            margin-top: -10px; 
-            display: block; /* Evita spazi indesiderati sotto l'immagine */
+            margin-bottom: -60px;
+            margin-top: -10px;
+            display: block;
             object-fit: contain; /* Mantiene le proporzioni dell'immagine */
-            
         }
-        
+
     </style>
     {% endblock %}
 </head>
@@ -78,7 +92,15 @@
     <div class="navbar">
         <img src="{{ url_for('static', filename='icon.png') }}" alt="Site Icon">
         <a href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('orders') }}">Orders</a>
+
+        <div class="dropdown">
+            <button class="dropbtn">Orders</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('orders') }}">View Orders</a>
+                <a href="{{ url_for('create_order') }}">Create Order</a>
+            </div>
+        </div>
+        
         <a href="{{ url_for('tasks') }}">Tasks</a>
         <a href="{{ url_for('scheduler') }}">Scheduler</a>
         <a href="{{ url_for('report') }}">Report</a>
@@ -87,6 +109,7 @@
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
     {% endif %}
+    
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}

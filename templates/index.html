@@ -1,8 +1,53 @@
 {% extends "base.html" %}
 {% set hide_nav = True %}
 {% block content %}
+
+<!-- Link Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Styling per la pagina -->
+<style>
+    html, body {
+        height: 100%; /* Assicura che html e body occupino tutta l'altezza del viewport */
+        margin: 0; /* Rimuove i margini predefiniti */
+    }
+
+    body {
+        background-image: url('{{ url_for('static', filename='bg.jpg') }}');
+        background-size: cover; /* Assicura che l'immagine copra tutto lo sfondo */
+        background-position: center; /* Centra l'immagine di sfondo */
+        background-repeat: no-repeat; /* Impedisce la ripetizione dell'immagine */
+        font-family: 'Poppins', sans-serif;
+        color: white;
+    }
+
+    .text-center {
+        margin-top: 50px;
+        text-align: center; /* Centra il testo */
+    }
+
+    img {
+        max-width: 150px;
+        margin-bottom: 20px;
+    }
+
+    a {
+        color: white;
+        text-decoration: underline;
+    }
+
+    a:hover {
+        color: #ccc;
+    }
+</style>
+
 <div class="text-center">
+    <!-- Aggiungi immagine icon.png -->
+    <img src="{{ url_for('static', filename='icon.png') }}" alt="Icon">
+    
+    <!-- Titolo e descrizione -->
     <h1>Welcome to MyMES</h1>
     <p class="lead">Please <a href="{{ url_for('login') }}">login</a> to access the system.</p>
 </div>
+
 {% endblock %}

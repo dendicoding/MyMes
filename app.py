@@ -955,22 +955,48 @@ def delete_task():
     else:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     
+from datetime import datetime
+
 @app.route('/update_task_schedule', methods=['POST'])
 def update_task_schedule():
     if 'username' in session and session['role'] == 'manager':
         data = request.json
         task_id = data.get('task_id')
-        prog_start_time = datetime.fromisoformat(data.get('prog_start_time'))
-        prog_end_time = datetime.fromisoformat(data.get('prog_end_time'))
+        prog_start_time_str = data.get('prog_start_time')
+        prog_end_time_str = data.get('prog_end_time')
+        machine_id = data.get('machine_id')
 
+        default_date_str = "1900-01-01 00:00"
+        
         try:
-            update_task(task_id, prog_start_time=prog_start_time, prog_end_time=prog_end_time)
+            # Verifica se le date sono stringhe valide prima di convertirle
+            if isinstance(prog_start_time_str, str) and prog_start_time_str != default_date_str:
+                prog_start_time = datetime.fromisoformat(prog_start_time_str)
+            else:
+                prog_start_time = None
+
+            if isinstance(prog_end_time_str, str) and prog_end_time_str != default_date_str:
+                prog_end_time = datetime.fromisoformat(prog_end_time_str)
+            else:
+                prog_end_time = None
+
+            print('Received data:', {
+                'task_id': task_id,
+                'prog_start_time': prog_start_time,
+                'prog_end_time': prog_end_time,
+                'machine_id': machine_id
+            })
+            
+            # Aggiorna il task nel database (devi implementare la funzione update_task)
+            update_task(task_id, prog_start_time=prog_start_time, prog_end_time=prog_end_time, machine_id=machine_id)
+            
             return jsonify({'success': True})
         except Exception as e:
             print(f"Failed to update task schedule: {e}")
             return jsonify({'success': False, 'error': str(e)}), 400
     else:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+
 
 from flask import jsonify, redirect, url_for
 from datetime import datetime
@@ -1006,6 +1032,7 @@ def get_task_list():
                 'text': task['task'],
                 'start_date': start_date.strftime('%Y-%m-%d %H:%M'),
                 'end_date': end_date.strftime('%Y-%m-%d %H:%M'),
+                'machine': task['machine_id'],
                 'progress': task.get('progress', 0)  # Assumi default 0 se non specificato
             })
 
@@ -1019,10 +1046,6 @@ def machines_json():
     machines_data = [{"id": machine["id"], "name": machine["machine_id"]} for machine in machines]
     
     return jsonify({"data": machines_data})
-
-
-
-
 
 
 #---------------------------------------------------------ALTRO--------
@@ -1049,6 +1072,12 @@ def report():
     else:
         return redirect(url_for('login'))
 
+@app.route('/create_order', methods=['GET', 'POST'])
+def create_order():
+    if request.method == 'POST':
+        # Handle the order creation logic here
+        return redirect(url_for('orders'))
+    return render_template('create_order.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
