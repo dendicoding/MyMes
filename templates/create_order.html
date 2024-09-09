@@ -17,6 +17,15 @@
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="quantity" required>
         </div>
+        <div class="form-group">
+            <label for="cycleID">Cycle ID:</label>
+            <select id="cycleID" name="cycleID" required>
+                <option value="" disabled selected>Select a Cycle</option>
+                {% for cycle in cycles %}
+                    <option value="{{ cycle['cycleID'] }}">{{ cycle['cycleID'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary">Create Order</button>
     </form>
 </div>

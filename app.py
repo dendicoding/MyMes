@@ -152,23 +152,57 @@ def orders():
             order_id = request.form['order_id']
             product = request.form['product']
             quantity = request.form['quantity']
+            cycle = request.form['cycleID']
+            
+            # Inserisci l'ordine nel database
             production_orders[order_id] = {
                 "product": product,
                 "quantity": quantity,
-                "status": "created",  # Stato iniziale 'created'
+                "status": "created",
                 "start_time": None,
                 "end_time": None,
                 "cost": 0,
+                "cycleID": cycle,
                 "initial_quantity": quantity
             }
             flash('Order created successfully!', 'success')
-            insert_order(order_id, "created", product, quantity)  # Inserimento nel database
+            
+            insert_order(order_id, "created", product, quantity, cycle)  # Inserimento nel database
+            
+            # Inserisci i task per ogni operazione associata al ciclo
+            operations = get_operations_by_cycle(cycle)  # Recupera le operazioni per il ciclo
+            for operation in operations:
+                task_description = f"{order_id}/{operation['OperationID']}"
+                # Passa solo gli argomenti necessari
+                insert_task(order_id, task_description)  # Inserimento dei task nel database
 
         orders_list = get_orders()  # Ottieni gli ordini dal database
         machines_list = get_machines()  # Ottieni le macchine dal database
         return render_template('orders.html', orders=orders_list, machines=machines_list)
     else:
         return redirect(url_for('login'))
+
+
+
+def get_operations_by_cycle(cycle_id):
+    # Configura la connessione al database
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+    
+    # Esegui la query per ottenere le operazioni per il ciclo specificato
+    query = "SELECT OperationID FROM ProductionCycleOperation WHERE CycleID = ?"
+    cursor.execute(query, (cycle_id,))
+    
+    # Recupera i risultati e costruisci la lista delle operazioni
+    operations = [{'OperationID': row.OperationID} for row in cursor.fetchall()]
+    print(operations)
+    # Chiudi la connessione
+    cursor.close()
+    conn.close()
+    
+    return operations
+
+
 
 @app.route('/emit_order/<order_id>', methods=['POST'])
 def emit_order(order_id):
@@ -183,13 +217,13 @@ def emit_order(order_id):
     else:
         return redirect(url_for('login'))
 
-def insert_order(order_id, status, product, quantity):
+def insert_order(order_id, status, product, quantity, cycleID):
     try:
         connection = pyodbc.connect(CONNECTION_STRING)
         cursor = connection.cursor()
         
-        sql_insert_query = """INSERT INTO Ordini (order_id, status, product, quantity, initial_quantity) VALUES (?, ?, ?, ?, ?)"""
-        record_to_insert = (order_id, status, product, quantity, quantity)
+        sql_insert_query = """INSERT INTO Ordini (order_id, status, product, quantity, initial_quantity, cycleID) VALUES (?, ?, ?, ?, ?, ?)"""
+        record_to_insert = (order_id, status, product, quantity, quantity, cycleID)
         cursor.execute(sql_insert_query, record_to_insert)
 
         connection.commit()
@@ -223,6 +257,7 @@ def get_orders():
                 'machine_id': row.machine_id,
                 'start_time': row.start_time,
                 'end_time': row.end_time,
+                'cycleID': row.CycleID,
                 'cost': row.cost
             })
 
@@ -586,22 +621,24 @@ def tasks():
     else:
         return redirect(url_for('login'))
 
-@app.route('/insert_task', methods=['POST'])
-def insert_task():
-    if 'username' in session and session['role'] == 'manager':
-        order_id = request.form['order_id']
-        machine_id = request.form['machine_id']
-        task_description = request.form['task']
 
-        if order_id and machine_id and task_description:
-            # Pass the operator name when inserting the task
-            insert_task(order_id, machine_id, task_description)
-            flash('Task created successfully!', 'success')
-        else:
-            flash('All fields are required.', 'error')
-        return redirect(url_for('tasks'))
-    else:
-        return redirect(url_for('login'))
+
+
+def insert_task(order_id, task_description):
+    # Configura la connessione al database
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+    status = 'pending'
+    
+    query = "INSERT INTO Tasks (order_id, task, status) VALUES (?, ?, ?)"
+    cursor.execute(query, (order_id, task_description, status))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+
 
 
 @app.route('/suspend_task/<task_id>', methods=['POST'])
@@ -630,25 +667,7 @@ def complete_task(task_id):
     else:
         return redirect(url_for('login'))
 
-def insert_task(order_id, machine_id, task_description):
-    try:
-        connection = pyodbc.connect(CONNECTION_STRING)
-        cursor = connection.cursor()
 
-        # Update the SQL query to include the operator
-        sql_insert_query = """INSERT INTO Tasks (order_id, machine_id, status, task) VALUES (?, ?, 'pending', ?)"""
-        cursor.execute(sql_insert_query, (order_id, machine_id, task_description))
-
-        connection.commit()
-        print(f"Task inserted successfully into Tasks table")
-
-    except Exception as error:
-        print(f"Failed to insert record into Tasks table {error}")
-
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
 
 @app.route('/assign_task', methods=['POST'])
 def assign_task():
@@ -1291,10 +1310,14 @@ def report():
 
 @app.route('/create_order', methods=['GET', 'POST'])
 def create_order():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT cycleID FROM ProductionCycle")
+    cycles = cursor.fetchall()
     if request.method == 'POST':
         # Handle the order creation logic here
         return redirect(url_for('orders'))
-    return render_template('create_order.html')
+    return render_template('create_order.html', cycles = cycles)
 
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():
