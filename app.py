@@ -586,8 +586,8 @@ def tasks():
     else:
         return redirect(url_for('login'))
 
-@app.route('/create_task', methods=['POST'])
-def create_task():
+@app.route('/insert_task', methods=['POST'])
+def insert_task():
     if 'username' in session and session['role'] == 'manager':
         order_id = request.form['order_id']
         machine_id = request.form['machine_id']
@@ -997,10 +997,6 @@ def update_task_schedule():
     else:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
-
-from flask import jsonify, redirect, url_for
-from datetime import datetime
-
 from flask import jsonify, redirect, url_for
 from datetime import datetime
 
@@ -1048,6 +1044,227 @@ def machines_json():
     return jsonify({"data": machines_data})
 
 
+def get_db_connection():
+    conn = pyodbc.connect(CONNECTION_STRING)
+    return conn
+
+
+@app.route('/cycle/create', methods=['GET', 'POST'])
+def create_cycle():
+    if request.method == 'POST':
+        cycle_name = request.form['cycle_name']
+        description = request.form['description']
+        estimated_duration = request.form['estimated_duration']
+        status = request.form['status']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO ProductionCycle (CycleName, Description, EstimatedDuration, Status)
+            VALUES (?, ?, ?, ?)
+        """, (cycle_name, description, estimated_duration, status))
+        conn.commit()
+        conn.close()
+        flash('Cycle created successfully', 'success')
+        return redirect(url_for('list_cycles'))
+
+    return render_template('create_cycle.html')
+
+@app.route('/cycle/edit/<int:cycle_id>', methods=['GET', 'POST'])
+def edit_cycle(cycle_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        cycle_name = request.form['cycle_name']
+        description = request.form['description']
+        estimated_duration = request.form['estimated_duration']
+        status = request.form['status']
+
+        cursor.execute("""
+            UPDATE ProductionCycle
+            SET CycleName = ?, Description = ?, EstimatedDuration = ?, Status = ?
+            WHERE CycleID = ?
+        """, (cycle_name, description, estimated_duration, status, cycle_id))
+        conn.commit()
+        conn.close()
+        flash('Cycle updated successfully', 'success')
+        return redirect(url_for('list_cycles'))
+
+    cursor.execute("SELECT * FROM ProductionCycle WHERE CycleID = ?", (cycle_id,))
+    cycle = cursor.fetchone()
+    conn.close()
+    return render_template('edit_cycle.html', cycle=cycle)
+
+@app.route('/cycle/delete/<int:cycle_id>', methods=['POST'])
+def delete_cycle(cycle_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM ProductionCycleOperation WHERE CycleID = ?; DELETE FROM ProductionCycle WHERE CycleID = ?", (cycle_id,cycle_id,))
+    conn.commit()
+    conn.close()
+    flash('Cycle deleted successfully', 'success')
+    return redirect(url_for('list_cycles'))
+
+@app.route('/cycles', methods=['GET'])
+def list_cycles():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ProductionCycle")
+    cycles = cursor.fetchall()
+    conn.close()
+    return render_template('list_cycles.html', cycles=cycles)  # Passa None se non c'è un ciclo specifico
+
+@app.route('/cycle/<int:cycle_id>', methods=['GET'])
+def view_cycle(cycle_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ProductionCycle WHERE CycleID = ?", (cycle_id,))
+    cycle = cursor.fetchone()
+
+    if not cycle:
+        return "Cycle not found", 404
+    
+    cursor.execute("SELECT * FROM ProductionCycleOperation WHERE CycleID = ?", (cycle_id,))
+    operations = cursor.fetchall()
+    conn.close()
+
+    return render_template('view_cycle.html', cycle=cycle, operations=operations, cycle_id=cycle_id)
+
+
+@app.route('/cycle/<int:cycle_id>/operation/add', methods=['GET', 'POST'])
+def add_operation(cycle_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        operation_name = request.form['operation_name']
+        operation_sequence = request.form['operation_sequence']
+        estimated_time = request.form['estimated_time']
+        
+
+        cursor.execute("""
+            INSERT INTO ProductionCycleOperation (CycleID, OperationName, OperationSequence, EstimatedTime)
+            VALUES (?, ?, ?, ?)
+        """, (cycle_id, operation_name, operation_sequence, estimated_time))
+        conn.commit()
+        conn.close()
+        flash('Operation added successfully', 'success')
+        return redirect(url_for('view_cycle', cycle_id=cycle_id))
+
+    
+    conn.close()
+    return render_template('add_operation.html', cycle_id=cycle_id)
+
+@app.route('/operation/edit/<int:operation_id>', methods=['GET', 'POST'])
+def edit_operation(operation_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        operation_name = request.form['operation_name']
+        operation_sequence = request.form['operation_sequence']
+        estimated_time = request.form['estimated_time']
+        resource_id = request.form['resource_id']
+
+        cursor.execute("""
+            UPDATE ProductionCycleOperation
+            SET OperationName = ?, OperationSequence = ?, EstimatedTime = ?, ResourceID = ?
+            WHERE operation_id = ?
+        """, (operation_name, operation_sequence, estimated_time, resource_id, operation_id))
+        conn.commit()
+        conn.close()
+        flash('Operation updated successfully', 'success')
+        return redirect(url_for('view_cycle', cycle_id=operation_id))
+
+    cursor.execute("SELECT * FROM ProductionCycleOperation WHERE OperationID = ?", (operation_id,))
+    operation = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM Resource")
+    resources = cursor.fetchall()
+    conn.close()
+    return render_template('edit_operation.html', operation=operation, resources=resources)
+
+@app.route('/operation/delete/<int:operation_id>', methods=['POST'])
+def delete_operation(operation_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT CycleID FROM ProductionCycleOperation WHERE OperationID = ?", (operation_id,))
+    cycle_id = cursor.fetchone()[0]
+
+    cursor.execute("DELETE FROM ProductionCycleOperation WHERE OperationID = ?", (operation_id,))
+    conn.commit()
+    conn.close()
+    flash('Operation deleted successfully', 'success')
+    return redirect(url_for('view_cycle', cycle_id=cycle_id))
+
+@app.route('/resources', methods=['GET'])
+def list_resources():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Resource")
+    resources = cursor.fetchall()
+    conn.close()
+    return render_template('list_resources.html', resources=resources)
+
+@app.route('/resource/create', methods=['GET', 'POST'])
+def create_resource():
+    if request.method == 'POST':
+        resource_name = request.form['resource_name']
+        resource_type = request.form['resource_type']
+        availability_status = request.form['availability_status']
+        last_maintenance_date = request.form['last_maintenance_date']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Resource (resource_name, resource_type, availability_status, last_maintenance_date)
+            VALUES (?, ?, ?, ?)
+        """, (resource_name, resource_type, availability_status, last_maintenance_date))
+        conn.commit()
+        conn.close()
+        flash('Resource created successfully', 'success')
+        return redirect(url_for('list_resources'))
+
+    return render_template('create_resource.html')
+
+@app.route('/resource/edit/<int:resource_id>', methods=['GET', 'POST'])
+def edit_resource(resource_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        resource_name = request.form['resource_name']
+        resource_type = request.form['resource_type']
+        availability_status = request.form['availability_status']
+        last_maintenance_date = request.form['last_maintenance_date']
+
+        cursor.execute("""
+            UPDATE Resource
+            SET resource_name = ?, resource_type = ?, availability_status = ?, last_maintenance_date = ?
+            WHERE resource_id = ?
+        """, (resource_name, resource_type, availability_status, last_maintenance_date, resource_id))
+        conn.commit()
+        conn.close()
+        flash('Resource updated successfully', 'success')
+        return redirect(url_for('list_resources'))
+
+    cursor.execute("SELECT * FROM Resource WHERE resource_id = ?", (resource_id,))
+    resource = cursor.fetchone()
+    conn.close()
+    return render_template('edit_resource.html', resource=resource)
+
+@app.route('/resource/delete/<int:resource_id>', methods=['POST'])
+def delete_resource(resource_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Resource WHERE resource_id = ?", (resource_id,))
+    conn.commit()
+    conn.close()
+    flash('Resource deleted successfully', 'success')
+    return redirect(url_for('list_resources'))
+
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
 def index():
@@ -1078,6 +1295,14 @@ def create_order():
         # Handle the order creation logic here
         return redirect(url_for('orders'))
     return render_template('create_order.html')
+
+@app.route('/create_task', methods=['GET', 'POST'])
+def create_task():
+    if request.method == 'POST':
+        # Handle the order creation logic here
+        return redirect(url_for('tasks'))
+    return render_template('create_task.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

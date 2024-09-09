@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Tasks Management</h1>
+
+<!-- Create Task Form -->
+{% if session.role == 'manager' %}
+    <h2>Create Task</h2>
+    <form method="POST" action="{{ url_for('insert_task') }}">
+        <div class="form-group">
+            <label for="order_id">Order ID</label>
+            <select id="order_id" name="order_id" required>
+                <option value="" disabled selected>Select Order</option>
+                {% set emitted_orders = orders 
+                    | rejectattr('status', 'equalto', 'created') 
+                    | rejectattr('status', 'equalto', 'completed') 
+                    | list 
+                %}
+                {% if emitted_orders %}
+                    {% for order in emitted_orders %}
+                        <option value="{{ order.order_id }}">{{ order.order_id }} - {{ order.product }}</option>
+                    {% endfor %}
+                {% else %}
+                    <option value="" disabled>No orders available</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="machine_id">Machine ID</label>
+            <select id="machine_id" name="machine_id" required>
+                <option value="" disabled selected>Select Machine</option>
+                {% for machine in machines %}
+                    <option value="{{ machine.machine_id }}">{{ machine.machine_id }} - {{ machine.status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="task">Task Description</label>
+            <input type="text" id="task" name="task" required>
+        </div>
+        <div class="form-group">
+            <label for="estimated_time">Estimated Time (hours)</label>
+            <input type="number" id="estimated_time" name="estimated_time" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </form>
+
+    <!-- Start Task Form -->
+
+{% endif %}
+
+{% endblock %}

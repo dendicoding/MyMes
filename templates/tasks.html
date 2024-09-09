@@ -5,46 +5,7 @@
 
 <!-- Create Task Form -->
 {% if session.role == 'manager' %}
-    <h2>Create Task</h2>
-    <form method="POST" action="{{ url_for('create_task') }}">
-        <div class="form-group">
-            <label for="order_id">Order ID</label>
-            <select id="order_id" name="order_id" required>
-                <option value="" disabled selected>Select Order</option>
-                {% set emitted_orders = orders 
-                    | rejectattr('status', 'equalto', 'created') 
-                    | rejectattr('status', 'equalto', 'completed') 
-                    | list 
-                %}
-                {% if emitted_orders %}
-                    {% for order in emitted_orders %}
-                        <option value="{{ order.order_id }}">{{ order.order_id }} - {{ order.product }}</option>
-                    {% endfor %}
-                {% else %}
-                    <option value="" disabled>No orders available</option>
-                {% endif %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="machine_id">Machine ID</label>
-            <select id="machine_id" name="machine_id" required>
-                <option value="" disabled selected>Select Machine</option>
-                {% for machine in machines %}
-                    <option value="{{ machine.machine_id }}">{{ machine.machine_id }} - {{ machine.status }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="task">Task Description</label>
-            <input type="text" id="task" name="task" required>
-        </div>
-        <div class="form-group">
-            <label for="estimated_time">Estimated Time (hours)</label>
-            <input type="number" id="estimated_time" name="estimated_time" min="1" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Task</button>
-    </form>
-
+    
     <!-- Start Task Form -->
 <h2>Start Task</h2>
 <form method="POST" action="{{ url_for('start_task') }}">
@@ -133,18 +94,27 @@
                 <td class="actions-column">
                     {% if task.status == 'in_progress' %}
                         <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-warning action-btn">Suspend</button>
+                            <button type="submit" class="btn btn-warning action-btn" title="Suspend">
+                                <i class="material-icons">pause</i>
+                            </button>
                             <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
                             <input type="hidden" name="order_id" value="{{ task.order_id }}">
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
                         <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-success action-btn">Complete</button>
+                            <button type="submit" class="btn btn-success action-btn" title="Complete">
+                                <i class="material-icons">task_alt</i>
+                            </button>
                             <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
                             <input type="hidden" name="order_id" value="{{ task.order_id }}">
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
-                        <a href="{{ url_for('manage_tasks', task_id=task.task_id) }}" class="btn btn-info action-btn">Declare</a>
+                        <form action="{{ url_for('manage_tasks', task_id=task.task_id) }}" method="GET" style="display:inline;">
+                            <button type="submit" class="btn btn-info action-btn" title="Declare">
+                                <i class="material-icons">add_box</i>
+                            </button>
+                        </form>
+                        
                     {% endif %}
                 </td>
                 {% endif %}

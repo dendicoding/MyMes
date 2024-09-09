@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Resource{% endblock %}
+
+{% block content %}
+<h1>Edit Resource</h1>
+<form action="{{ url_for('edit_resource', resource_id=resource.resource_id) }}" method="POST">
+    <div class="form-group">
+        <label for="resource_name">Resource Name</label>
+        <input type="text" id="resource_name" name="resource_name" class="form-control" value="{{ resource.resource_name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="resource_type">Resource Type</label>
+        <input type="text" id="resource_type" name="resource_type" class="form-control" value="{{ resource.resource_type }}" required>
+    </div>
+    <div class="form-group">
+        <label for="availability_status">Status</label>
+        <select id="availability_status" name="availability_status" class="form-control" required>
+            <option value="available" {% if resource.availability_status == 'available' %}selected{% endif %}>Available</option>
+            <option value="under_maintenance" {% if resource.availability_status == 'under_maintenance' %}selected{% endif %}>Under Maintenance</option>
+            <option value="out_of_order" {% if resource.availability_status == 'out_of_order' %}selected{% endif %}>Out of Order</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="last_maintenance_date">Last Maintenance Date</label>
+        <input type="date" id="last_maintenance_date" name="last_maintenance_date" class="form-control" value="{{ resource.last_maintenance_date }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Update Resource</button>
+</form>
+{% endblock %}

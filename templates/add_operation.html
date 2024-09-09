@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Create Operation{% endblock %}
+
+{% block content %}
+<h1>Create New Operation</h1>
+<form action="{{ url_for('add_operation', cycle_id=cycle_id) }}" method="POST">
+    <div class="form-group">
+        <label for="operation_name">Operation Name</label>
+        <input type="text" id="operation_name" name="operation_name" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="operation_sequence">Operation Sequence</label>
+        <input type="number" id="operation_sequence" name="operation_sequence" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="estimated_time">Estimated Time</label>
+        <input type="int" id="estimated_time" name="estimated_time" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Operation</button>
+</form>
+{% endblock %}

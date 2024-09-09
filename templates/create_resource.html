@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Create Resource{% endblock %}
+
+{% block content %}
+<h1>Create New Resource</h1>
+<form action="{{ url_for('create_resource') }}" method="POST">
+    <div class="form-group">
+        <label for="resource_name">Resource Name</label>
+        <input type="text" id="resource_name" name="resource_name" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="resource_type">Resource Type</label>
+        <input type="text" id="resource_type" name="resource_type" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="availability_status">Status</label>
+        <select id="availability_status" name="availability_status" class="form-control" required>
+            <option value="available">Available</option>
+            <option value="under_maintenance">Under Maintenance</option>
+            <option value="out_of_order">Out of Order</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="last_maintenance_date">Last Maintenance Date</label>
+        <input type="date" id="last_maintenance_date" name="last_maintenance_date" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Create Resource</button>
+</form>
+{% endblock %}

@@ -15,7 +15,7 @@
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            margin-top: 40px;
+            margin-top: 60px;
         }
 
         #task-list {
@@ -104,8 +104,8 @@
             gantt.config.scale_unit = "day";
             gantt.config.date_scale = "%d %M";
             gantt.config.min_column_width = 50;
-            gantt.config.drag_move = false;
-            gantt.config.drag_resize = false;
+            gantt.config.drag_move = true; // Permetti il drag dei task
+            gantt.config.drag_resize = true; // Permetti il resize dei task
             gantt.config.auto_scheduling = true;
             gantt.config.order_branch = true;
             gantt.config.order_branch_free = true;
@@ -113,15 +113,15 @@
             gantt.config.details_on_create = true;
             gantt.config.details_on_dblclick = true;
             gantt.config.details_on_edit = true;
-
+    
             gantt.config.lightbox.sections = [
                 {name: "time", type: "duration", map_to: "auto", time_format: ["%d", "%m", "%Y", "%H:%i"]},
                 {name: "machine", height: 44, type: "select", map_to: "machine", options: []}
             ];
             gantt.locale.labels.section_machine = "Assign Task to Machine";
-
+    
             gantt.init("gantt_here");
-
+    
             // Aggiungi il plugin di zoom
             gantt.config.zoom = {
                 scales: [
@@ -130,14 +130,14 @@
                 ]
             };
             gantt.ext.zoom.init({
-                container: "gantt_here", // ID del contenitore del Gantt
-                default_zoom: "hour", // Imposta il livello di zoom predefinito
+                container: "gantt_here",
+                default_zoom: "hour",
                 scales: [
                     { unit: "day", step: 1, format: "%d %M" },
                     { unit: "hour", step: 1, format: "%H:%i" }
                 ]
             });
-
+    
             // Carica i dati
             Promise.all([
                 fetch('/tasks_json').then(response => response.json()),
@@ -146,15 +146,15 @@
                 const ganttData = tasksData.data.filter(task => 
                     new Date(task.start_date).getFullYear() !== 1900
                 );
-
+    
                 gantt.parse({ data: ganttData });
-
+    
                 // Recupera gli ID dei task già presenti nel Gantt
                 const existingTaskIds = new Set(gantt.getTaskByTime().map(task => task.id));
-
+    
                 // Popola la lista dei task con solo quelli non presenti nel Gantt
                 const filteredTasks = tasksData.data.filter(task => !existingTaskIds.has(task.id));
-
+    
                 // Popola la lista dei task
                 const taskListElement = document.getElementById('task-list');
                 filteredTasks.forEach(task => {
@@ -163,22 +163,22 @@
                     taskEl.textContent = task.text;
                     taskEl.setAttribute('data-task-id', task.id);
                     taskEl.setAttribute('draggable', true);
-
+    
                     taskEl.addEventListener('dragstart', function(event) {
                         event.dataTransfer.setData('text/plain', task.id);
                     });
-
+    
                     taskListElement.appendChild(taskEl);
                 });
-
+    
                 // Configura le opzioni del menu a tendina
                 const machineOptions = machinesData.data.map(machine => ({
-                    key: machine.name, // Assumendo che machine.id sia l'identificativo unico
+                    key: machine.name,
                     label: machine.name
                 }));
                 
                 gantt.config.lightbox.sections[1].options = machineOptions;
-
+    
                 // Funzione per aggiornare la selezione nel menu a tendina
                 gantt.attachEvent("onLightboxShow", function(id) {
                     const task = gantt.getTask(id);
@@ -187,70 +187,64 @@
                             const lightbox = gantt.$lightbox;
                             const machineSelect = lightbox.querySelector('select[name="machine"]');
                             if (machineSelect) {
-                                machineSelect.value = task.machine; // Imposta il valore selezionato
+                                machineSelect.value = task.machine;
                             } else {
                                 console.error('Machine select not found');
                             }
                         }, 100); // Adjust timeout if needed
                     }
                 });
-
+    
                 // Gestisci l'evento dopo un drag
-                gantt.attachEvent("onAfterTaskDrag", function(id, target, old) {
-                    if (id) {
-                        const task = gantt.getTask(id);
-                        fetch(`/update_task_schedule`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify({
-                                task_id: id,
-                                start_date: task.start_date,
-                                end_date: task.end_date
-                            })
-                        }).then(response => response.json())
-                        .then(data => console.log('Task drag position saved:', data))
-                        .catch(error => console.error('Error saving task drag position:', error));
+                gantt.attachEvent("onAfterTaskDrag", function(id, task) {
+                    console.log('onAfterTaskDrag event triggered');
+                    console.log('Task ID:', id);
+                    console.log('Task Data:', task);
+
+                    if (task.start_date && task.end_date) {
+                        console.log('Start Date:', start);
+                        console.log('End Date:', end);
                     } else {
-                        console.error('Task ID is undefined');
+                        console.error('Start date or end date is missing');
                     }
                 });
-
-                // Gestisci l'evento dopo un resize
+    
                 gantt.attachEvent("onAfterTaskResize", function(id, task) {
-                    if (id) {
-                        fetch(`/update_task_schedule`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify({
-                                prog_start_time: gantt.getTask(id).start_date.toISOString(), // Usa toISOString() per serializzare
-                                prog_end_time: gantt.getTask(id).end_date.toISOString(), // Usa toISOString() per serializzare
-                                task_id: id
-                            })
-                        }).then(response => response.json())
-                        .then(data => console.log('Task resize position saved:', data))
-                        .catch(error => console.error('Error saving task resize position:', error));
+                    console.log('onAfterTaskResize event triggered');
+                    console.log('Task ID:', id);
+                    console.log('Task Data:', task);
+
+                    if (task.start_date && task.end_date) {
+                        console.log('Start Date:', gantt.getTask(taskId).start_date);
+                        console.log('End Date:', gantt.getTask(taskId).end_date);
                     } else {
-                        console.error('Task ID is undefined');
+                        console.error('Start date or end date is missing');
                     }
                 });
 
+                
+                gantt.attachEvent("onTaskUpdated", function(id, task) {
+                    console.log('onTaskUpdated event triggered');
+                    console.log('Task ID:', id);
+                    console.log('Task Data:', task);
+                });
+
+
+
+    
                 document.getElementById('gantt_here').addEventListener('dragover', function(event) {
                     event.preventDefault();
                 });
-
+    
                 document.getElementById('gantt_here').addEventListener('drop', function(event) {
                     event.preventDefault();
                     const taskId = event.dataTransfer.getData('text/plain');
-
+    
                     if (taskId) {
                         const start = gantt.getState().drag_start_date || new Date();
                         const end = gantt.date.add(start, 1, "day");
+    
+                        console.log(start,end)
 
                         // Aggiungi il task e salva la posizione nel database
                         gantt.addTask({
@@ -260,7 +254,7 @@
                             duration: gantt.calculateDuration(start, end),
                             progress: 0,
                         });
-
+    
                         // Salva la posizione nel database
                         fetch(`/update_task_schedule`, {
                             method: 'POST',
@@ -269,20 +263,17 @@
                                 'X-CSRFToken': '{{ csrf_token }}'
                             },
                             body: JSON.stringify({
-                                prog_start_time: gantt.getTask(taskId).start_date,
-                                prog_end_time: gantt.getTask(taskId).end_date,
-                                task_id: taskId  // Assicurati di inviare l'ID del task
+                                prog_start_time: gantt.getTask(taskId).start_date.toISOString(),
+                                prog_end_time: gantt.getTask(taskId).end_date.toISOString(),
+                                task_id: taskId
                             })
                         }).then(response => response.json())
                         .then(data => console.log('Task position saved:', data))
                         .catch(error => console.error('Error saving task position:', error));
-                    } else {
-                        console.error('Dropped task ID is undefined');
                     }
                 });
-
+    
                 gantt.attachEvent("onLightboxSave", function(id, task) {
-                    // Salva le modifiche del task, inclusa la macchina selezionata
                     return fetch(`/update_task_schedule`, {
                         method: 'POST',
                         headers: {
@@ -290,33 +281,20 @@
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
                         body: JSON.stringify({
-                            prog_start_time: task.start_date,
-                            prog_end_time: task.end_date,
+                            prog_start_time: task.start_date.toISOString(),
+                            prog_end_time: task.end_date.toISOString(),
                             machine_id: task.machine,
-                            task_id: id  // Assicurati di inviare l'ID del task
+                            task_id: id
                         })
                     }).then(response => response.json())
-                    .then(data => {
-                        console.log('Task updated:', data);
-                        // Restituisci true per chiudere la lightbox
-                        return true;
-                    })
+                    .then(data => true)
                     .catch(error => {
                         console.error('Error updating task:', error);
-                        // Mostra un messaggio di errore all'utente, se necessario
                         return false;
                     });
                 });
+                                // Gestisci l'evento di cancellazione del task nella lightbox
                 gantt.attachEvent("onLightboxDelete", function(id) {
-                    // Recupera il task e imposta start_date e end_date a '1900-01-01 00:00'
-                    var task = gantt.getTask(id);
-                    
-                    var defaultDate = '1900-01-01 00:00'; // Data predefinita
-
-                    task.start_date = defaultDate;
-                    task.end_date = defaultDate;
-
-                    // Invia una richiesta POST per aggiornare il task nel database
                     return fetch(`/update_task_schedule`, {
                         method: 'POST',
                         headers: {
@@ -324,24 +302,20 @@
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
                         body: JSON.stringify({
-                            task_id: id,
-                            start_date: defaultDate,  // Invia la data predefinita al server
-                            end_date: defaultDate     // Invia la data predefinita al server
+                            prog_start_time: null,
+                            prog_end_time: null,
+                            task_id: id
                         })
                     }).then(response => response.json())
-                    .then(data => {
-                        console.log('Task deleted:', data);
-                        gantt.deleteTask(id); // Elimina il task dall'interfaccia Gantt
-                        return true;
-                    })
+                    .then(data => true)
                     .catch(error => {
                         console.error('Error deleting task:', error);
                         return false;
                     });
                 });
-
             });
         });
-
+    
     </script>
+    
 {% endblock %}

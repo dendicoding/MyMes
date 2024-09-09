@@ -6,6 +6,7 @@
     <title>{% block title %}My MES{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     {% block head %}
     <style>
@@ -83,6 +84,9 @@
             display: block;
             object-fit: contain; /* Mantiene le proporzioni dell'immagine */
         }
+       
+        
+
 
     </style>
     {% endblock %}
@@ -100,9 +104,26 @@
                 <a href="{{ url_for('create_order') }}">Create Order</a>
             </div>
         </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Cycles</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('list_cycles') }}">View Cycles</a>
+                <a href="{{ url_for('create_cycle') }}">Create Cycle</a>
+                <a href="{{ url_for('list_resources') }}">Manage Resources</a>
+            </div>
+        </div>
         
-        <a href="{{ url_for('tasks') }}">Tasks</a>
-        <a href="{{ url_for('scheduler') }}">Scheduler</a>
+        <div class="dropdown">
+            <button class="dropbtn">Tasks</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('tasks') }}">View Tasks</a>
+                <a href="{{ url_for('create_task') }}">Create Task</a>
+                <a href="{{ url_for('scheduler') }}">Scheduler</a>
+            </div>
+        </div>
+
+        
         <a href="{{ url_for('report') }}">Report</a>
         <a href="{{ url_for('view_machines') }}">Machines</a>
         <a href="{{ url_for('view_operators') }}">Operators</a>
