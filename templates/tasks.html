@@ -32,7 +32,7 @@
     <input type="hidden" id="start_task" name="task">
     <input type="hidden" id="start_operator_id_hidden" name="operator_id">
     <input type="hidden" id="start_operator_name_hidden" name="operator_name">
-    <button type="submit" class="btn btn-primary">Start Task</button>
+    <button type="submit" class="btn btn-primary btn-sm">Start Task</button>
 </form>
 
 <script>
@@ -80,7 +80,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for task in tasks %}
+        {% for task in tasks if task.prog_start_time and task.prog_end_time and task.machine_id %}
             <tr class="{% if task.status == 'pending' %}order-status-pending{% elif task.status == 'in_progress' %}order-status-in-progress{% elif task.status == 'completed' %}order-status-completed{% elif task.status == 'suspended' %}order-status-suspended{% endif %}">
                 <td class="task-id-column">{{ task.task_id }}</td>
                 <td class="task-description-column">{{ task.task }}</td>
@@ -88,8 +88,8 @@
                 <td class="machine-id-column">{{ task.machine_id }}</td>
                 <td class="status-column">{{ task.status }}</td>
                 <td class="operator-id-column">{{ task.operator }} - {{ task.operator_name }}</td>
-                <td class="start-time-column">{{ task.start_time }}</td>
-                <td class="end-time-column">{{ task.end_time }}</td>
+                <td class="start-time-column">{{ task.prog_start_time }}</td>
+                <td class="end-time-column">{{ task.prog_end_time }}</td>
                 {% if session.role == 'manager' %}
                 <td class="actions-column">
                     {% if task.status == 'in_progress' %}
@@ -122,6 +122,5 @@
         {% endfor %}
     </tbody>
 </table>
-
 
 {% endblock %}

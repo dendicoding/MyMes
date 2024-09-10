@@ -169,12 +169,6 @@ def orders():
             
             insert_order(order_id, "created", product, quantity, cycle)  # Inserimento nel database
             
-            # Inserisci i task per ogni operazione associata al ciclo
-            operations = get_operations_by_cycle(cycle)  # Recupera le operazioni per il ciclo
-            for operation in operations:
-                task_description = f"{order_id}/{operation['OperationID']}"
-                # Passa solo gli argomenti necessari
-                insert_task(order_id, task_description)  # Inserimento dei task nel database
 
         orders_list = get_orders()  # Ottieni gli ordini dal database
         machines_list = get_machines()  # Ottieni le macchine dal database
@@ -206,10 +200,17 @@ def get_operations_by_cycle(cycle_id):
 
 @app.route('/emit_order/<order_id>', methods=['POST'])
 def emit_order(order_id):
+    cycle = request.form['cycleID']
     if 'username' in session and session['role'] == 'manager':
         order = next((o for o in get_orders() if o['order_id'] == order_id), None)
         if order and order['status'] == 'created':
             update_order(order_id, 'emitted')
+             # Inserisci i task per ogni operazione associata al ciclo
+            operations = get_operations_by_cycle(cycle)  # Recupera le operazioni per il ciclo
+            for operation in operations:
+                task_description = f"{order_id}/{operation['OperationID']}"
+                # Passa solo gli argomenti necessari
+                insert_task(order_id, task_description)  # Inserimento dei task nel database
             flash(f'Order {order_id} emitted successfully!', 'success')
         else:
             flash('Order cannot be emitted. It may not exist or it is not in "created" status.', 'error')
@@ -773,13 +774,13 @@ def update_task(task_id, status=None, operator=None, start_time=None, end_time=N
             update_values.append(machine_id)
             update_columns.append("machine_id = ?")
 
-        #if prog_start_time is not None:
-        update_values.append(prog_start_time)
-        update_columns.append("prog_start_time = ?")
+        if prog_start_time is not None:
+            update_values.append(prog_start_time)
+            update_columns.append("prog_start_time = ?")
 
-        #if prog_end_time is not None:
-        update_values.append(prog_end_time)
-        update_columns.append("prog_end_time = ?")
+        if prog_end_time is not None:
+            update_values.append(prog_end_time)
+            update_columns.append("prog_end_time = ?")
 
 
 

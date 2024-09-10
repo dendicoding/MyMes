@@ -30,6 +30,7 @@
                             <!-- Aggiungi il pulsante 'Emit' solo se l'ordine è in stato 'created' -->
                             <form action="{{ url_for('emit_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
                                 <button type="submit" class="btn btn-info">Emit</button>
+                                <input type="hidden" name="cycleID" value="{{ order.cycleID }}">
                             </form>
                         {% endif %}
                     </td>
