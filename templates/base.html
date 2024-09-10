@@ -10,13 +10,12 @@
 
     {% block head %}
     <style>
-        /* Stili per il dropdown */
+        /* Existing styles */
         .dropdown {
             position: relative;
             display: inline-block;
         }
 
-        /* Bottone del dropdown */
         .dropbtn {
             font-size: 18px;
             border: none;
@@ -31,10 +30,9 @@
         }
 
         .dropbtn:hover {
-            background-color: #003f7f; /* Colore di sfondo al passaggio del mouse */
+            background-color: #003f7f;
         }
 
-        /* Contenuto del dropdown */
         .dropdown-content {
             display: none;
             position: absolute;
@@ -47,7 +45,6 @@
             transition: opacity 0.3s ease;
         }
 
-        /* Link del dropdown */
         .dropdown-content a {
             color: #333;
             padding: 12px 16px;
@@ -64,30 +61,42 @@
             color: white;
         }
 
-        /* Mostra il dropdown al passaggio del mouse */
         .dropdown:hover .dropdown-content {
             display: block;
             opacity: 1;
         }
 
-        /* Bottone e link con bordi arrotondati e ombra */
         .dropbtn, .dropdown-content a {
             border-radius: 8px;
         }
 
-        /* Stili per l'icona della navbar */
         .navbar img {
-            height: 70px; /* Altezza dell'icona */
-            margin-right: 10px; /* Spazio tra icona e testo */
+            height: 70px;
+            margin-right: 10px;
             margin-bottom: -60px;
             margin-top: -10px;
             display: block;
-            object-fit: contain; /* Mantiene le proporzioni dell'immagine */
+            object-fit: contain;
         }
-       
-        
+        /* Stili per i pulsanti */
+        .btn-link {
+            border: none;
+            background: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        /* Stili per le icone */
+        .material-icons {
+            font-size: 24px; /* Dimensione delle icone */
+            vertical-align: middle;
+            color: #333;
+            margin-right: 15px; /* Spazio tra le icone */
+            transition: color 0.3s;
+        }
 
-
+        .material-icons:hover {
+            color: #007bff; /* Colore al passaggio del mouse */
+        }
     </style>
     {% endblock %}
 </head>
@@ -124,8 +133,16 @@
             </div>
         </div>
 
-        
-        
+        <div class="dropdown">
+            <button class="dropbtn">Resources</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('view_all_materials') }}">View Materials</a>
+                <a href="{{ url_for('create_material') }}">Create Material</a>
+                <a href="{{ url_for('view_all_products') }}">View Products</a>
+                <a href="{{ url_for('create_product') }}">Create Product</a>
+            </div>
+        </div>
+
         <a href="{{ url_for('view_machines') }}">Machines</a>
         <a href="{{ url_for('view_operators') }}">Operators</a>
         <a href="{{ url_for('logout') }}">Logout</a>
@@ -147,7 +164,7 @@
     </div>
 
     {% block scripts %}
-    <!-- Puoi aggiungere script specifici qui -->
+    <!-- You can add specific scripts here -->
     {% endblock %}
 </body>
 </html>

@@ -977,6 +977,33 @@ def delete_task():
     
 from datetime import datetime
 
+@app.route('/delete_order/<order_id>', methods=['POST'])
+def delete_order(order_id):
+    try:
+        # Connect to the database
+        conn = pyodbc.connect(CONNECTION_STRING)
+        cursor = conn.cursor()
+        
+        # Delete the order from the database
+        cursor.execute("DELETE FROM Ordini WHERE order_id = ?", (order_id,))
+        conn.commit()
+        
+        # Check if the order was successfully deleted
+        if cursor.rowcount > 0:
+            flash('Order deleted successfully.', 'success')
+        else:
+            flash('Order not found.', 'error')
+    
+    except Exception as e:
+        flash(f'Error occurred: {str(e)}', 'error')
+    
+    finally:
+        # Close the connection
+        cursor.close()
+        conn.close()
+    
+    return redirect(url_for('orders'))
+
 @app.route('/update_task_schedule', methods=['POST'])
 def update_task_schedule():
     if 'username' in session and session['role'] == 'manager':
@@ -1285,6 +1312,72 @@ def delete_resource(resource_id):
     flash('Resource deleted successfully', 'success')
     return redirect(url_for('list_resources'))
 
+
+@app.route('/create_material', methods=['GET', 'POST'])
+def create_material():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        available_quantity = request.form['available_quantity']
+        unit_of_measure = request.form['unit_of_measure']
+        unit_cost = request.form['unit_cost']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO materials (name, description, initial_quantity, available_quantity, unit_of_measure, unit_cost)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, description, available_quantity, available_quantity, unit_of_measure, unit_cost))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('view_all_materials'))
+
+    return render_template('create_material.html')
+
+@app.route('/create_product', methods=['GET', 'POST'])
+def create_product():
+    if request.method == 'POST':
+        
+        name = request.form['name']
+        description = request.form['description']
+        available_quantity = request.form['available_quantity']
+        unit_of_measure = request.form['unit_of_measure']
+        price = request.form['price']
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO items (name, description, available_quantity, unit_of_measure, price)
+            VALUES (?, ?, ?, ?, ?)
+        """, (name, description, available_quantity, unit_of_measure, price))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('view_all_products'))
+
+    return render_template('create_product.html')
+
+@app.route('/view_all_materials')
+def view_all_materials():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM materials')
+    materials = cursor.fetchall()
+    conn.close()
+
+    return render_template('list_materials.html', materials=materials)
+
+@app.route('/view_all_products')
+def view_all_products():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM items')
+    items = cursor.fetchall()
+    conn.close()
+
+    return render_template('list_products.html', items=items)
+
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
 def index():
@@ -1313,12 +1406,14 @@ def report():
 def create_order():
     conn = get_db_connection()
     cursor = conn.cursor()
+    cursor.execute('SELECT item_id FROM items')
+    products = cursor.fetchall()
     cursor.execute("SELECT cycleID FROM ProductionCycle")
     cycles = cursor.fetchall()
     if request.method == 'POST':
         # Handle the order creation logic here
         return redirect(url_for('orders'))
-    return render_template('create_order.html', cycles = cycles)
+    return render_template('create_order.html', cycles = cycles, products=products)
 
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():

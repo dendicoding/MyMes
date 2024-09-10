@@ -27,12 +27,20 @@
                     <td>{{ order.cycleID }}</td>
                     <td>
                         {% if order.status == 'created' %}
-                            <!-- Aggiungi il pulsante 'Emit' solo se l'ordine è in stato 'created' -->
+                            <!-- Emit Icon Button -->
                             <form action="{{ url_for('emit_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-info">Emit</button>
+                                <button type="submit" class="btn-link" title="Emit">
+                                    <i class="material-icons">download</i>
+                                </button>
                                 <input type="hidden" name="cycleID" value="{{ order.cycleID }}">
                             </form>
                         {% endif %}
+                        <!-- Delete Icon Button -->
+                        <form action="{{ url_for('delete_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-link" title="Delete">
+                                <i class="material-icons">delete_forever</i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             {% endfor %}

@@ -94,7 +94,7 @@
                 <td class="actions-column">
                     {% if task.status == 'in_progress' %}
                         <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-warning action-btn" title="Suspend">
+                            <button type="submit" class="btn-link" title="Suspend">
                                 <i class="material-icons">pause</i>
                             </button>
                             <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
@@ -102,7 +102,7 @@
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
                         <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-success action-btn" title="Complete">
+                            <button type="submit" class="btn-link" title="Complete">
                                 <i class="material-icons">task_alt</i>
                             </button>
                             <input type="hidden" name="machine_id" value="{{ task.machine_id }}">
@@ -110,7 +110,7 @@
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
                         <form action="{{ url_for('manage_tasks', task_id=task.task_id) }}" method="GET" style="display:inline;">
-                            <button type="submit" class="btn btn-info action-btn" title="Declare">
+                            <button type="submit" class="btn-link" title="Declare">
                                 <i class="material-icons">add_box</i>
                             </button>
                         </form>
