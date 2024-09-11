@@ -88,8 +88,8 @@
                 <td class="machine-id-column">{{ task.machine_id }}</td>
                 <td class="status-column">{{ task.status }}</td>
                 <td class="operator-id-column">{{ task.operator }} - {{ task.operator_name }}</td>
-                <td class="start-time-column">{{ task.prog_start_time }}</td>
-                <td class="end-time-column">{{ task.prog_end_time }}</td>
+                <td class="start-time-column">{{ task.start_time }}</td>
+                <td class="end-time-column">{{ task.end_time }}</td>
                 {% if session.role == 'manager' %}
                 <td class="actions-column">
                     {% if task.status == 'in_progress' %}

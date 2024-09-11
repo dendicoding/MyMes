@@ -159,15 +159,15 @@ body {
 }
 
 /* Table cells */
-.table td {
-    border-bottom: 1px solid #dee2e6;
-    padding: 12px 20px;
+.table td, td{
+    padding: 8px 15px; /* Riduci il padding per ridurre l'altezza delle righe */
     vertical-align: middle;
     transition: background-color 0.3s ease;
     white-space: nowrap; /* Prevent text wrapping */
     overflow: hidden; /* Hide overflowed text */
     text-overflow: ellipsis; /* Add ellipsis for overflowed text */
 }
+
 
 /* Specific column widths */
 .table .task-id-column {

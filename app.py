@@ -184,11 +184,11 @@ def get_operations_by_cycle(cycle_id):
     cursor = conn.cursor()
     
     # Esegui la query per ottenere le operazioni per il ciclo specificato
-    query = "SELECT OperationID FROM ProductionCycleOperation WHERE CycleID = ?"
+    query = "SELECT OperationSequence FROM ProductionCycleOperation WHERE CycleID = ?"
     cursor.execute(query, (cycle_id,))
     
     # Recupera i risultati e costruisci la lista delle operazioni
-    operations = [{'OperationID': row.OperationID} for row in cursor.fetchall()]
+    operations = [{'OperationSequence': row.OperationSequence} for row in cursor.fetchall()]
     print(operations)
     # Chiudi la connessione
     cursor.close()
@@ -208,7 +208,7 @@ def emit_order(order_id):
              # Inserisci i task per ogni operazione associata al ciclo
             operations = get_operations_by_cycle(cycle)  # Recupera le operazioni per il ciclo
             for operation in operations:
-                task_description = f"{order_id}/{operation['OperationID']}"
+                task_description = f"{order_id}/{operation['OperationSequence']}"
                 # Passa solo gli argomenti necessari
                 insert_task(order_id, task_description)  # Inserimento dei task nel database
             flash(f'Order {order_id} emitted successfully!', 'success')
@@ -1321,19 +1321,25 @@ def create_material():
         available_quantity = request.form['available_quantity']
         unit_of_measure = request.form['unit_of_measure']
         unit_cost = request.form['unit_cost']
+        cycle = request.form['cycle_id']
 
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO materials (name, description, initial_quantity, available_quantity, unit_of_measure, unit_cost)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (name, description, available_quantity, available_quantity, unit_of_measure, unit_cost))
+            INSERT INTO materials (name, description, initial_quantity, available_quantity, unit_of_measure, unit_cost, cycleID)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (name, description, available_quantity, available_quantity, unit_of_measure, unit_cost, cycle))
         conn.commit()
         conn.close()
 
+        
         return redirect(url_for('view_all_materials'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT CycleID FROM ProductionCycle')
+    cycles = cursor.fetchall()
 
-    return render_template('create_material.html')
+    return render_template('create_material.html', cycles=cycles)
 
 @app.route('/create_product', methods=['GET', 'POST'])
 def create_product():
