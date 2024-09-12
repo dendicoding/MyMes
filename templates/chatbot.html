@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Chatbot MES
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <img src="{{ url_for('static', filename='icon.png') }}" alt="Chatbot Profile" class="chat-profile-img">
+        <span>Chatbot MES</span>
+    </div>
+    <div class="chat-body" id="chat-body">
+        <!-- Messaggi verranno visualizzati qui -->
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="message-input" placeholder="Scrivi un messaggio..." autocomplete="off">
+        <button onclick="sendMessage()">Invia</button>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #e9ecef;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .chat-container {
+        width: 100%;
+        max-width: 400px;
+        height: 600px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        margin: 50px auto;
+    }
+
+    .chat-header {
+        padding: 15px;
+        background-color: #007bff;
+        color: white;
+        display: flex;
+        align-items: center;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .chat-profile-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .chat-body {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #f1f1f1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message {
+        margin-bottom: 10px;
+        max-width: 70%;
+        padding: 10px;
+        border-radius: 10px;
+        clear: both;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .message.sent {
+        background-color: #007bff;
+        color: white;
+        align-self: flex-end;
+        text-align: right;
+    }
+
+    .message.received {
+        background-color: #f1f0f0;
+        color: black;
+        align-self: flex-start;
+        text-align: left;
+    }
+
+    .chat-footer {
+        padding: 15px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .chat-footer input {
+        flex-grow: 1;
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        outline: none;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-footer button {
+        margin-left: 10px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-footer button:hover {
+        background-color: #0056b3;
+    }
+
+    .chat-footer input:focus {
+        border-color: #007bff;
+    }
+</style>
+
+<script>
+    function createMessageElement(text, type) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', type);
+        messageElement.textContent = text;
+        return messageElement;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        const message = input.value;
+
+        if (message.trim() === '') return;
+
+        const chatBody = document.getElementById('chat-body');
+        chatBody.appendChild(createMessageElement(message, 'sent'));
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        fetch('/chatbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatBody.appendChild(createMessageElement(data.response, 'received'));
+            chatBody.scrollTop = chatBody.scrollHeight;
+        })
+        .catch(error => console.error('Errore:', error));
+
+        input.value = '';
+    }
+
+    document.getElementById('message-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+{% endblock %}

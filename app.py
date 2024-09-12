@@ -1582,5 +1582,17 @@ def create_task():
     return render_template('create_task.html')
 
 
+from chatbot import handle_chat  # Importa la funzione dal modulo chatbot.py
+@app.route('/chatbot', methods=['POST'])
+def chat():
+    user_input = request.json.get("message")
+    response = handle_chat(user_input)
+    return jsonify({"response": response})
+
+# Rotta per la chat specifica (chat.html)
+@app.route('/chat')
+def chat_page():
+    return render_template('chatbot.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
