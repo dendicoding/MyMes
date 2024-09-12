@@ -142,7 +142,7 @@ Chatbot MES
         chatBody.appendChild(createMessageElement(message, 'sent'));
         chatBody.scrollTop = chatBody.scrollHeight;
 
-        fetch('/chatbot', {
+        fetch('/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
