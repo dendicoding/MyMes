@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Storage Movements</h1>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Movement ID</th>
+            <th>Material ID</th>
+            <th>Type</th>
+            <th>Operator ID</th>
+            <th>Quantity</th>
+            <th>Movement Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for movement in storage_movements %}
+            <tr>
+                <td>{{ movement.movement_id }}</td>
+                <td>{{ movement.material_id }}</td>
+                <td>{{ movement.type_of_movement }}</td>
+                <td>{{ movement.operator_id }}</td>
+                <td>{{ movement.quantity }}</td>
+                <td>{{ movement.movement_time }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

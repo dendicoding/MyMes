@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Materials for Cycle ID: {{ cycle_id }}</h1>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Material ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Available Quantity</th>
+            <th>Unit of Measure</th>
+            <th>Unit Cost</th>
+            <th>Cycle ID</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for material in materials %}
+            <tr>
+                <td>{{ material.material_id }}</td>
+                <td>{{ material.name }}</td>
+                <td>{{ material.description }}</td>
+                <td>{{ material.available_quantity }}</td>
+                <td>{{ material.unit_of_measure }}</td>
+                <td>{{ material.unit_cost }}</td>
+                <td>{{ material.cycleID }}</td>
+                <td class="actions-column">
+                    <form action="{{ url_for('withdraw_material', material_id=material.material_id) }}" method="GET">
+                        <button type="submit" class="btn-link" title="Withdraw">
+                            <i class="material-icons">trolley</i>
+                        </button>
+                    </form>
+                </td>   
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

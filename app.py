@@ -614,13 +614,32 @@ def update_operator(operator_id, status, name=None, current_task=None):
 @app.route('/tasks', methods=['GET'])
 def tasks():
     if 'username' in session:
-        orders = get_orders()  # Get orders from the database
+        # Recupera gli ordini dalla funzione get_orders
+        orders = get_orders()  
+        print("Orders:", orders)  # Stampa per il debug
+        
+        # Crea un dizionario degli ordini con order_id come chiave
+        orders_dict = {order['order_id']: order for order in orders}
+        print(orders_dict)
+        # Recupera le altre informazioni
         machines = get_machines()  # Get machines from the database
         operators = get_operators()  # Get operators from the database
         tasks = get_tasks()  # Get tasks from the database
-        return render_template('tasks.html', orders=orders, machines=machines, operators=operators, tasks=tasks)
+        
+        # Stampa del cycleID per ogni task
+        for task in tasks:
+            # Assumiamo che task.order_id sia una chiave nel dizionario orders_dict
+            order = orders_dict.get(task['order_id'])
+            if order:
+                print(f"Task ID: {task['task_id']}, Cycle ID: {order['cycleID']}")
+            else:
+                print(f"Task ID: {task['task_id']}, Order not found")
+        
+        return render_template('tasks.html', orders=orders, machines=machines, operators=operators, tasks=tasks, orders_dict=orders_dict)
     else:
         return redirect(url_for('login'))
+
+
 
 
 
@@ -1368,7 +1387,7 @@ def create_product():
 def view_all_materials():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM materials')
+    cursor.execute('SELECT * FROM Materials')
     materials = cursor.fetchall()
     conn.close()
 
@@ -1383,6 +1402,140 @@ def view_all_products():
     conn.close()
 
     return render_template('list_products.html', items=items)
+
+
+@app.route('/view_materials/<cycle_id>')
+def view_materials(cycle_id):
+    # Esegui una query per ottenere tutti i materiali con lo stesso cycleID
+    materials = get_cycle_material(cycle_id)
+    
+    # Passa i materiali alla tua template per la visualizzazione
+    return render_template('list_cycle_materials.html', materials=materials)
+
+def get_cycle_material(cycle_id):
+    query = "SELECT * FROM Materials WHERE cycleID = ?"
+    params = (cycle_id,)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    return cursor.fetchall()
+
+@app.route('/withdraw_material/<material_id>', methods=['GET', 'POST'])
+def withdraw_material(material_id):
+    if 'username' in session:
+        if request.method == 'GET':
+            material = get_material_by_id(material_id)
+            operators = get_operators()  # Fetch operators for dropdown
+            if material is None:
+                flash('Material not found.', 'error')
+                return redirect(url_for('some_other_route'))  # Redirect if material not found
+            return render_template('withdraw_material.html', material=material, operators=operators)
+        
+        if request.method == 'POST':
+            operator_id = request.form['operator_id']
+            quantity = int(request.form['quantity'])
+            material_id = request.form['material_id']
+            material = get_material_by_id(material_id)
+            if material is None:
+                flash('Material not found.', 'error')
+                return redirect(url_for('some_other_route'))  # Redirect if material not found
+            if quantity <= material['available_quantity']:  # Access as dictionary
+                # Insert into Storage_Movements
+                insert_storage_movement(material_id, operator_id, quantity)
+                return redirect(url_for('tasks'))
+            else:
+                # Handle error if quantity exceeds available quantity
+                flash('Requested quantity exceeds available quantity.', 'error')
+                return redirect(url_for('withdraw_material', material_id=material_id))
+    else:
+        return redirect(url_for('login'))
+def get_material_by_id(material_id):
+    try:
+        connection = pyodbc.connect(CONNECTION_STRING)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM Materials WHERE material_id = ?", (material_id,))
+        row = cursor.fetchone()
+        if row:
+            return {
+                'material_id': row.material_id,
+                'name': row.name,
+                'available_quantity': row.available_quantity,
+                'description': row.description,
+                'unit_of_measure': row.unit_of_measure,
+                'unit_cost': row.unit_cost,
+                'cycleID': row.cycleID
+            }
+    except Exception as error:
+        print(f"Failed to retrieve material {material_id}: {error}")
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+    return None
+
+def insert_storage_movement(material_id, operator_id, quantity):
+    try:
+        connection = pyodbc.connect(CONNECTION_STRING)
+        cursor = connection.cursor()
+        
+        # Insert into Storage_Movements
+        cursor.execute("""
+            INSERT INTO Storage_Movements (material_id, operator_id, quantity, movement_time, type_of_movement)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)
+        """, (material_id, operator_id, quantity, 'withdrawal'))
+        
+        # Update available_quantity in Materials
+        cursor.execute("""
+            UPDATE Materials
+            SET available_quantity = available_quantity - ?
+            WHERE material_id = ?
+        """, (quantity, material_id))
+        
+        connection.commit()
+    except Exception as error:
+        print(f"Failed to insert storage movement or update material quantity: {error}")
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+
+
+@app.route('/list_storage_movements', methods=['GET'])
+def list_storage_movements():
+    if 'username' in session:
+        storage_movements = get_storage_movements()
+        return render_template('list_storage_movements.html', storage_movements=storage_movements)
+    else:
+        return redirect(url_for('login'))
+def get_storage_movements():
+    try:
+        connection = pyodbc.connect(CONNECTION_STRING)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM Storage_Movements")
+        rows = cursor.fetchall()
+        
+        # Convert rows to a list of dictionaries
+        movements_list = []
+        for row in rows:
+            movements_list.append({
+                'movement_id': row.movement_id,
+                'material_id': row.material_id,
+                'type_of_movement': row.type_of_movement,
+                'operator_id': row.operator_id,
+                'quantity': row.quantity,
+                'movement_time': row.movement_time
+            })
+        
+        return movements_list
+
+    except Exception as error:
+        print(f"Failed to retrieve records from Storage_Movements table: {error}")
+        return []
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
 
 #---------------------------------------------------------ALTRO--------
 @app.route('/')

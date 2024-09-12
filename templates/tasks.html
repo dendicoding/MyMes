@@ -114,9 +114,16 @@
                                 <i class="material-icons">add_box</i>
                             </button>
                         </form>
-                        
+                        <!-- Nuovo pulsante per visualizzare i materiali associati al cycleID -->
+                        <!-- Parte del template in cui accedi al cycle_id -->
+                        <form action="{{ url_for('view_materials', cycle_id=orders_dict[task.order_id].cycleID) }}" method="GET" style="display:inline;">
+                            <button type="submit" class="btn-link" title="View Materials">
+                                <i class="material-icons">inventory</i>
+                            </button>
+                        </form>
+
                     {% endif %}
-                </td>
+                </td>                
                 {% endif %}
             </tr>
         {% endfor %}

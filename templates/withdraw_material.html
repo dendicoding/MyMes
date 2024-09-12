@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Withdraw Material: {{ material.name }}</h1>
+
+<!-- Material Information -->
+<div class="material-info">
+    <p><strong>Material ID:</strong> {{ material.material_id }}</p>
+    <p><strong>Name:</strong> {{ material.name }}</p>
+    <p><strong>Available Quantity:</strong> {{ material.available_quantity }}</p>
+</div>
+
+<!-- Withdrawal Form -->
+<form method="POST" action="{{ url_for('withdraw_material', material_id=material.material_id) }}">
+    <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" name="quantity" min="1" max="{{ material.available_quantity }}" required>
+    </div>
+    <input type="hidden" name="material_id" value="{{ material.material_id }}">
+    <div class="form-group">
+        <label for="operator_id">Operator</label>
+        <select id="operator_id" name="operator_id" required>
+            <option value="" disabled selected>Select Operator</option>
+            {% for operator in operators %}
+                <option value="{{ operator.operator_id }}">{{ operator.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Withdraw</button>
+</form>
+
+{% endblock %}
