@@ -97,6 +97,73 @@
         .material-icons:hover {
             color: #007bff; /* Colore al passaggio del mouse */
         }
+        /* Stili per il select */
+        select {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #333;
+            outline: none;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            appearance: none; /* Nasconde la freccia predefinita del browser */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            position: relative;
+            background-image: url("{{ url_for('static', filename='arrow-icon.svg') }}");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 10px) center;
+            background-size: 15px;
+        }
+
+        select:hover {
+            background-color: #e9f0ff;
+        }
+
+        select:focus {
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Stili per le opzioni */
+        option {
+            padding: 10px;
+            background-color: white;
+            color: #333;
+        }
+        /* Stili per il textarea */
+        textarea {
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #333;
+            width: 100%;
+            height: 150px;
+            outline: none;
+            resize: vertical; /* Permette di ridimensionare solo verticalmente */
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Leggera ombra */
+        }
+
+        textarea:focus {
+            border-color: #0056b3;
+            background-color: #e9f0ff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Ombra blu al focus */
+        }
+
+        textarea:hover {
+            border-color: #0056b3;
+            background-color: #f1f1f1;
+        }
+
+        /* Disabilita il ridimensionamento orizzontale e consente solo quello verticale */
+        textarea {
+            resize: vertical;
+        }
+
+
     </style>
     {% endblock %}
 </head>

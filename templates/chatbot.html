@@ -8,7 +8,13 @@ Chatbot MES
 <div class="chat-container">
     <div class="chat-header">
         <img src="{{ url_for('static', filename='icon.png') }}" alt="Chatbot Profile" class="chat-profile-img">
-        <span>Chatbot MES</span>
+        <div class="chat-title">
+            <span>Chatbot MES</span>
+            <div class="chat-status">
+                <span class="online-dot"></span>
+                <span class="online-text">Online</span>
+            </div>
+        </div>
     </div>
     <div class="chat-body" id="chat-body">
         <!-- Messaggi verranno visualizzati qui -->
@@ -52,6 +58,30 @@ Chatbot MES
         height: 40px;
         border-radius: 50%;
         margin-right: 10px;
+    }
+
+    .chat-title {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-status {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .online-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #28a745;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .online-text {
+        font-size: 0.9em;
+        color: white;
     }
 
     .chat-body {
