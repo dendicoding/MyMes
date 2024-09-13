@@ -33,6 +33,15 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <label for="lot_code">Lot Code:</label>
+            <select id="lot_code" name="lot_code" class="form-control" required>
+                <option value="" disabled selected>Select a lot code</option>
+                {% for lot in lots %}
+                    <option value="{{ lot['lot_code'] }}">{{ lot['lot_code'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary">Create Material</button>
     </form>
 </div>

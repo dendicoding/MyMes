@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}View Lots{% endblock %}
+
+{% block content %}
+<h1>Lots</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Lot ID</th>
+            <th>Lot Code</th>
+            <th>Entity Type</th>
+            <th>Quantity</th>
+            <th>Unit of Measure</th>
+            <th>Creation Date</th>
+            <th>Expiration Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lot in lots %}
+        <tr>
+            <td>{{ lot.lot_id }}</td>
+            <td>{{ lot.lot_code }}</td>
+            <td>{{ lot.entity_type }}</td>
+            <td>{{ lot.quantity }}</td>
+            <td>{{ lot.unit_of_measure }}</td>
+            <td>{{ lot.creation_date }}</td>
+            <td>{{ lot.expiration_date if lot.expiration_date else 'N/A' }}</td>
+            <td>{{ lot.status }}</td>
+            <td>
+                <a href="{{ url_for('view_lots_materials', lot_code=lot.lot_code) }}" class="btn-link">
+                    <i class="material-icons">filter_list</i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

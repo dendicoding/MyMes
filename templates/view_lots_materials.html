@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}View Materials for Lot {{ lot_code }}{% endblock %}
+
+{% block content %}
+<h1>Materials for Lot {{ lot_code }}</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Material ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Available Quantity</th>
+            <th>Unit of Measure</th>
+            <th>Unit Cost</th>
+            <th>Cycle ID</th>
+            <th>Lot</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for material in materials %}
+        <tr>
+            <td>{{ material.material_id }}</td>
+            <td>{{ material.name }}</td>
+            <td>{{ material.description }}</td>
+            <td>{{ material.available_quantity }}</td>
+            <td>{{ material.unit_of_measure }}</td>
+            <td>{{ material.unit_cost }}</td>
+            <td>{{ material.cycleID }}</td>
+            <td>{{ material.lot }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

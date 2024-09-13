@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Lot Dashboard{% endblock %}
+
+{% block content %}
+<h1>Lot Dashboard</h1>
+
+<!-- Contenitore per i grafici -->
+<div class="dashboard">
+    <!-- Sezione per i pulsanti -->
+    <div class="buttons-container">
+        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('create_lot') }}'">Create Lot</button>
+        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('view_lots') }}'">View Lots</button>
+    </div>
+    <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+        <!-- Riquadro per il pie chart sullo status dei lotti -->
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Lot Status Distribution</h2>
+            <canvas id="lotStatusChart" width="300" height="300"></canvas>
+        </div>
+
+        <!-- Riquadro per il bar chart sulla quantità dei lotti -->
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Lot Quantity Distribution</h2>
+            <canvas id="lotQuantityChart" width="300" height="300"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Dati per il pie chart sullo status dei lotti
+        var lotStatusData = {
+            labels: ['Available', 'Used', 'Expired'],
+            datasets: [{
+                data: [{{ available_count|default(0) }}, {{ used_count|default(0) }}, {{ expired_count|default(0) }}],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+            }]
+        };
+
+        //Configurazione Pie Chart
+        var ctxStatus = document.getElementById('lotStatusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: lotStatusData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var label = tooltipItem.label || '';
+                                var value = tooltipItem.raw;
+                                return label + ': ' + value + ' lots';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Dati per il bar chart sulla quantità dei lotti
+        var lotQuantityData = {
+            labels: ['Lot 1', 'Lot 2', 'Lot 3', 'Lot 4'],
+            datasets: [{
+                label: 'Quantity',
+                data: [{{ lot_1_quantity|default(0) }}, {{ lot_2_quantity|default(0) }}, {{ lot_3_quantity|default(0) }}, {{ lot_4_quantity|default(0) }}],
+                backgroundColor: '#007bff'
+            }]
+        };
+
+        //Configurazione Bar Chart
+        var ctxQuantity = document.getElementById('lotQuantityChart').getContext('2d');
+        new Chart(ctxQuantity, {
+            type: 'bar',
+            data: lotQuantityData,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var label = tooltipItem.dataset.label || '';
+                                var value = tooltipItem.raw;
+                                return label + ': ' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .dashboard {
+        padding: 20px;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .buttons-container button {
+        width: 150px; /* Larghezza fissa per i pulsanti */
+    }
+
+
+</style>
+{% endblock %}

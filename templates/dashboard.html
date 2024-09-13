@@ -5,12 +5,13 @@
 
 <!-- Aggiungi il canvas per il grafico a torta con dimensioni ridotte -->
 <div class="dashboard">
-    
-    <h2>Order Status Distribution</h2>
     <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+        <!-- Riquadro per il pie chart sullo status degli ordini -->
         <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Order Status Distribution</h2>
             <canvas id="orderStatusPieChart" width="300" height="300"></canvas>
         </div>
+    <!-- Riquadro per il bar chart sulle quantità degli ordini -->    
         <div style="width: 50%; max-width: 400px; margin: auto;">
             <h2>Order Details</h2>
             <div>
@@ -25,9 +26,8 @@
                 </select>
             </div>
             <canvas id="orderComparisonBarChart" width="400" height="300"></canvas>
-            
         </div>
-    </div>
+</div>
 
     <!-- Sezione per la visualizzazione degli ordini e delle macchine -->
     <h2>Production Orders</h2>
@@ -152,7 +152,7 @@
                         statusDistribution.suspended,
                         statusDistribution.completed
                     ],
-                    backgroundColor: ['#36A2EB', '#FF6384', '#4BC0C0', '#FFCE56', '#808080']
+                    backgroundColor: ['#36A2EB', '#FF6384', '#28a745', '#FFCE56', '#808080']
                 }]
             },
             options: {
