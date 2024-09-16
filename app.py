@@ -1626,6 +1626,45 @@ def lot_dashboard():
                            lot_3_quantity=lot_3_quantity,
                            lot_4_quantity=lot_4_quantity)
 
+conn = pyodbc.connect(CONNECTION_STRING)
+cursor = conn.cursor()
+
+@app.route('/notes', methods=['GET', 'POST'])
+def notes():
+    # Recupera tutti gli operatori per il menu a tendina
+    cursor.execute("SELECT operator_id, name FROM Operatori")
+    operatori = cursor.fetchall()
+
+    selected_operator = None
+    note = []
+    nome_operatore = ""
+
+    if request.method == 'POST':
+        selected_operator = request.form['operatore']
+
+        if selected_operator:
+            # Recupera il nome dell'operatore selezionato
+            cursor.execute("SELECT name FROM Operatori WHERE operator_id = ?", selected_operator)
+            nome_operatore = cursor.fetchone()[0]
+            
+            # Recupera le note precedenti dell'operatore selezionato
+            cursor.execute("SELECT creation_time, note FROM Personal_Reports WHERE operator = ?", selected_operator)
+            note = cursor.fetchall()
+
+    return render_template('notes.html', operatori=operatori, note=note, selected_operator=selected_operator, nome_operatore=nome_operatore)
+
+
+@app.route('/add_note', methods=['POST'])
+def add_note():
+    operatore_id = request.form['operatore']
+    nota = request.form['nota']
+
+    # Inserisci la nuova nota nel database
+    cursor.execute("INSERT INTO Personal_Reports (operator, note) VALUES (?, ?)", operatore_id, nota)
+    conn.commit()
+
+    return redirect('/notes')
+
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
 def index():

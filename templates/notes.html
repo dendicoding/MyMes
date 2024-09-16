@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Gestione Note Operatore</h1>
+
+<!-- Form per selezionare l'operatore -->
+<div class="form-group">
+    <label for="operatore">Seleziona Operatore:</label>
+    <form method="POST" action="{{ url_for('notes') }}">
+        <select id="operatore" name="operatore" class="form-control" required>
+            <option value="" disabled selected>-- Seleziona un operatore --</option>
+            {% for operatore in operatori %}
+                <option value="{{ operatore['operator_id'] }}" {% if operatore['operator_id'] == selected_operator %}selected{% endif %}>{{ operatore['operator_id'] }} - {{ operatore['name'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm mt-2">Visualizza Note</button>
+    </form>
+</div>
+
+<!-- Sezione per visualizzare le note passate -->
+<h2>Note Precedenti{% if selected_operator %} per {{ nome_operatore }}{% endif %}</h2>
+<div id="note-precedenti">
+    {% if note %}
+        <ul class="list-group">
+            {% for nota in note %}
+                <li class="list-group-item">
+                    <strong>{{ nota['creation_time'] }}</strong>: {{ nota['note'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif selected_operator %}
+        <p>Nessuna nota trovata per questo operatore.</p>
+    {% endif %}
+</div>
+
+<!-- Form per aggiungere una nuova nota -->
+<h2>Aggiungi Nuova Nota</h2>
+<form method="POST" action="{{ url_for('add_note') }}">
+    <input type="hidden" name="operatore" value="{{ selected_operator }}">
+    <div class="form-group">
+        <label for="nota">Nuova Nota:</label>
+        <textarea name="nota" id="nota" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Aggiungi Nota</button>
+</form>
+
+{% endblock %}
