@@ -9,32 +9,46 @@
     <!-- Start Task Form -->
 <h2>Start Task</h2>
 <form method="POST" action="{{ url_for('start_task') }}">
-    <div class="form-group">
-        <label for="start_task_id">Task ID</label>
-        <select id="start_task_id" name="task_id" required>
-            <option value="" disabled selected>Select Task</option>
-            {% for task in tasks if task.status == 'pending' or task.status == 'suspended' %}
-                <option value="{{ task.task_id }}" data-machine_id="{{ task.machine_id }}" data-order_id="{{ task.order_id }}" data-task="{{ task.task }}">{{ task.task_id }} - {{ task.task }}</option>
-            {% endfor %}
-        </select>
+    <div class="form-row align-items-center">
+        <!-- Campo per il Task ID -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="start_task_id">Task ID</label>
+                <select id="start_task_id" name="task_id" class="form-control" required>
+                    <option value="" disabled selected>Select Task</option>
+                    {% for task in tasks if task.status == 'pending' or task.status == 'suspended' %}
+                        <option value="{{ task.task_id }}" data-machine_id="{{ task.machine_id }}" data-order_id="{{ task.order_id }}" data-task="{{ task.task }}">{{ task.task_id }} - {{ task.task }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Campo per selezionare l'Operatore -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="start_operator_id">Operator</label>
+                <select id="start_operator_id" name="operator_id" class="form-control" required>
+                    <option value="" disabled selected>Select Inactive Operator</option>
+                    {% for operator in operators if operator.status == 'idle' %}
+                        <option value="{{ operator.operator_id }}" data-operator_id="{{ operator.operator_id }}" data-operator_name="{{ operator.name }}">{{ operator.operator_id }} - {{ operator.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Pulsante per avviare il task -->
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary btn-sm mt-4">Start Task</button>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="start_operator_id">Operator</label>
-        <select id="start_operator_id" name="operator_id" required>
-            <option value="" disabled selected>Select Inactive Operator</option>
-            {% for operator in operators if operator.status == 'idle' %}
-                <option value="{{ operator.operator_id }}" data-operator_id="{{ operator.operator_id }}" data-operator_name="{{ operator.name }}">{{ operator.operator_id }} - {{ operator.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
+
     <input type="hidden" id="start_machine_id" name="machine_id">
     <input type="hidden" id="start_order_id" name="order_id">
     <input type="hidden" id="start_task" name="task">
     <input type="hidden" id="start_operator_id_hidden" name="operator_id">
     <input type="hidden" id="start_operator_name_hidden" name="operator_name">
-    <button type="submit" class="btn btn-primary btn-sm">Start Task</button>
 </form>
-
+    
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const startTaskSelect = document.getElementById('start_task_id');

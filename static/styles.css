@@ -116,6 +116,7 @@ body {
     animation: fadeIn 0.5s ease-in-out;
 }
 
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
@@ -135,6 +136,7 @@ body {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
+
 
 /* Table styling */
 .table, table {

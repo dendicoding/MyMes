@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Note</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .note-list {
+            margin-top: 20px;
+        }
+        .note-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Report Note</h1>
+    <h2>Operatore: {{ nome_operatore }}</h2>
+    <h3>Cliente: {{ cliente }}</h3>
+    <h4>Data: {{ data }}</h4>
+
+    <div class="note-list">
+        <h3>Note:</h3>
+        <ul>
+            {% for nota in note %}
+                <li class="note-item">
+                    <strong>{{ nota['creation_time'] }}</strong>: {{ nota['note'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

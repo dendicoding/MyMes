@@ -3,6 +3,7 @@ from datetime import datetime
 import pyodbc
 from config import CONNECTION_STRING
 
+
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
@@ -1631,40 +1632,161 @@ cursor = conn.cursor()
 
 @app.route('/notes', methods=['GET', 'POST'])
 def notes():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
     # Recupera tutti gli operatori per il menu a tendina
     cursor.execute("SELECT operator_id, name FROM Operatori")
     operatori = cursor.fetchall()
 
-    selected_operator = None
-    note = []
-    nome_operatore = ""
+    selected_operator = request.form.get('operatore')
+    selected_client = request.form.get('cliente')
+    selected_date = request.form.get('data')
 
-    if request.method == 'POST':
-        selected_operator = request.form['operatore']
+    clienti = ['VegaPlast', 'Serigroup']
 
-        if selected_operator:
-            # Recupera il nome dell'operatore selezionato
-            cursor.execute("SELECT name FROM Operatori WHERE operator_id = ?", selected_operator)
-            nome_operatore = cursor.fetchone()[0]
-            
-            # Recupera le note precedenti dell'operatore selezionato
-            cursor.execute("SELECT creation_time, note FROM Personal_Reports WHERE operator = ?", selected_operator)
-            note = cursor.fetchall()
+    # Recupera il nome dell'operatore selezionato
+    nome_operatore = None
+    if selected_operator:
+        cursor.execute("SELECT name FROM Operatori WHERE operator_id = ?", selected_operator)
+        nome_operatore = cursor.fetchone()[0]
 
-    return render_template('notes.html', operatori=operatori, note=note, selected_operator=selected_operator, nome_operatore=nome_operatore)
+    # Usa direttamente il nome del cliente dalla lista (se esiste)
+    nome_cliente = selected_client if selected_client else None
+
+    # Query per le note
+    query = """
+        SELECT n.creation_time, n.note, n.cliente
+        FROM Personal_Reports n 
+        WHERE n.operator = ?
+    """
+    params = [selected_operator]
+
+    # Aggiungi filtro cliente se selezionato
+    if selected_client:
+        query += " AND n.cliente = ?"
+        params.append(selected_client)
+
+    # Aggiungi filtro per la data se selezionata
+    if selected_date:
+        query += " AND CONVERT(date, n.creation_time) = ?"
+        params.append(selected_date)
+
+    cursor.execute(query, params)
+    note = cursor.fetchall()
+
+    # Chiudi la connessione
+    cursor.close()
+    conn.close()
+
+    # Passa i dati al template
+    return render_template('notes.html',
+                           operatori=operatori,
+                           clienti=clienti,  # Passiamo la lista dei clienti
+                           note=note,
+                           selected_operator=selected_operator,
+                           selected_client=selected_client,
+                           selected_date=selected_date,
+                           nome_operatore=nome_operatore,
+                           nome_cliente=nome_cliente)
+
+
 
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
     operatore_id = request.form['operatore']
     nota = request.form['nota']
+    cliente = request.form['cliente']
+
+    print("operatore_id:", operatore_id)
+    print("nota:", nota)
+    print("cliente:", cliente)
 
     # Inserisci la nuova nota nel database
-    cursor.execute("INSERT INTO Personal_Reports (operator, note) VALUES (?, ?)", operatore_id, nota)
+    cursor.execute("INSERT INTO Personal_Reports (operator, note, cliente) VALUES (?, ?, ?)", operatore_id, nota, cliente)
     conn.commit()
 
     return redirect('/notes')
 
+
+import pdfkit
+from flask import send_file, render_template_string
+
+
+
+from flask import send_file
+import io
+
+@app.route('/notes/pdf', methods=['POST'])
+def generate_pdf():
+    path_to_wkhtmltopdf = r'C:\Users\Xenture\OneDrive - ONE OFF Services scpa\Desktop\MyMes\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_to_wkhtmltopdf)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    selected_operator = request.form.get('operatore')
+    selected_client = request.form.get('cliente')
+    selected_date = request.form.get('data')
+
+    # Recupera il nome dell'operatore selezionato
+    cursor.execute("SELECT name FROM Operatori WHERE operator_id = ?", selected_operator)
+    nome_operatore = cursor.fetchone()[0]
+
+    # Usa direttamente il nome del cliente dalla lista (se esiste)
+    nome_cliente = selected_client if selected_client else None
+    print(selected_operator, selected_client, selected_date, nome_cliente)
+    # Query per le note
+    query = """
+        SELECT n.creation_time, n.note, n.cliente
+        FROM Personal_Reports n 
+        WHERE n.operator = ?
+    """
+    params = [selected_operator]
+
+    # Aggiungi filtro cliente se selezionato
+    if selected_client:
+        query += " AND n.cliente = ?"
+        params.append(selected_client)
+
+    # Aggiungi filtro per la data se selezionata
+    if selected_date:
+        query += " AND CONVERT(date, n.creation_time) = ?"
+        params.append(selected_date)
+
+    cursor.execute(query, params)
+    note = cursor.fetchall()
+
+    # Chiudi la connessione
+    cursor.close()
+    conn.close()
+
+    # Genera l'HTML per le note
+    html = render_template_string("""
+    <h1>Note per {{ nome_operatore }}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h1>
+    <ul>
+        {% for nota in note %}
+            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}</li>
+        {% endfor %}
+    </ul>
+    """, nome_operatore=nome_operatore, nome_cliente=nome_cliente, selected_date=selected_date, note=note)
+
+
+    # Genera il PDF senza salvare direttamente su file
+    pdf = pdfkit.from_string(html, False, configuration=config)
+
+    # Usa un oggetto BytesIO per inviare il PDF direttamente al client
+    pdf_stream = io.BytesIO(pdf)
+
+    # Restituisci il PDF al client
+    return send_file(pdf_stream, as_attachment=True, download_name='notes.pdf', mimetype='application/pdf')
+
+    
+
+    
+
+
+    
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
 def index():

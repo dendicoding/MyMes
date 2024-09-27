@@ -2,46 +2,115 @@
 
 {% block content %}
 <h1>Gestione Note Operatore</h1>
-
-<!-- Form per selezionare l'operatore -->
+<!-- Form per selezionare l'operatore, il cliente e la data -->
 <div class="form-group">
-    <label for="operatore">Seleziona Operatore:</label>
     <form method="POST" action="{{ url_for('notes') }}">
-        <select id="operatore" name="operatore" class="form-control" required>
-            <option value="" disabled selected>-- Seleziona un operatore --</option>
-            {% for operatore in operatori %}
-                <option value="{{ operatore['operator_id'] }}" {% if operatore['operator_id'] == selected_operator %}selected{% endif %}>{{ operatore['operator_id'] }} - {{ operatore['name'] }}</option>
-            {% endfor %}
-        </select>
+        <div class="form-row align-items-center">
+            <!-- Menu a tendina per selezionare l'operatore -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="operatore">Seleziona Operatore:</label>
+                    <select id="operatore" name="operatore" class="form-control" required>
+                        <option value="" disabled selected>-- Seleziona un operatore --</option>
+                        {% for operatore in operatori %}
+                            <option value="{{ operatore['operator_id'] }}" {% if operatore['operator_id'] == selected_operator %}selected{% endif %}>{{ operatore['operator_id'] }} - {{ operatore['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Menu a tendina per selezionare il cliente -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="cliente">Seleziona Cliente:</label>
+                    <select id="cliente" name="cliente" class="form-control">
+                        <option value="" disabled selected>-- Seleziona un cliente --</option>
+                        {% for cliente in clienti %}
+                            <option value="{{ cliente }}" {% if cliente == selected_client %}selected{% endif %}>{{ cliente }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Filtro per selezionare la data -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="data">Seleziona Data:</label>
+                    <input type="date" id="data" name="data" class="form-control" value="{{ selected_date }}">
+                </div>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary btn-sm mt-2">Visualizza Note</button>
     </form>
 </div>
 
-<!-- Sezione per visualizzare le note passate -->
-<h2>Note Precedenti{% if selected_operator %} per {{ nome_operatore }}{% endif %}</h2>
+<!-- Sezione per visualizzare le note passate filtrate -->
+<h2>Note Precedenti{% if nome_operatore %} per {{ nome_operatore }}{% endif %}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h2>
+
 <div id="note-precedenti">
     {% if note %}
         <ul class="list-group">
             {% for nota in note %}
                 <li class="list-group-item">
-                    <strong>{{ nota['creation_time'] }}</strong>: {{ nota['note'] }}
+                    <strong>{{ nota['creation_time'] }}</strong>: {{ nota['note']}} - {{ nota['cliente'] }}
                 </li>
             {% endfor %}
         </ul>
-    {% elif selected_operator %}
-        <p>Nessuna nota trovata per questo operatore.</p>
+    {% elif selected_operator or selected_client %}
+        <p>Nessuna nota trovata per i criteri selezionati.</p>
     {% endif %}
+    <form method="POST" action="{{ url_for('generate_pdf') }}">
+        <input type="hidden" name="operatore" value="{{ selected_operator }}">
+        <input type="hidden" name="cliente" value="{{ selected_client }}">
+        <input type="hidden" name="data" value="{{ selected_date }}">
+        <button type="submit" class="btn btn-primary btn-sm mt-2">Stampa PDF</button>
+    </form>
 </div>
+
+<!-- Pulsante per generare il PDF -->
 
 <!-- Form per aggiungere una nuova nota -->
 <h2>Aggiungi Nuova Nota</h2>
 <form method="POST" action="{{ url_for('add_note') }}">
-    <input type="hidden" name="operatore" value="{{ selected_operator }}">
+    <div class="form-row align-items-center">
+        <!-- Menu a tendina per selezionare l'operatore -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="operatore">Seleziona Operatore:</label>
+                <select id="operatore" name="operatore" class="form-control" required>
+                    <option value="" disabled selected>-- Seleziona un operatore --</option>
+                    {% for operatore in operatori %}
+                        <option value="{{ operatore['operator_id'] }}" {% if operatore['operator_id'] == selected_operator %}selected{% endif %}>{{ operatore['operator_id'] }} - {{ operatore['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Menu a tendina per selezionare il cliente -->
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="cliente">Seleziona Cliente:</label>
+                <select id="cliente" name="cliente" class="form-control">
+                    <option value="" disabled selected>-- Seleziona un cliente --</option>
+                    {% for cliente in clienti %}
+                        <option value="{{ cliente }}" {% if cliente == selected_client %}selected{% endif %}>{{ cliente }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campo per inserire la nuova nota -->
     <div class="form-group">
         <label for="nota">Nuova Nota:</label>
         <textarea name="nota" id="nota" class="form-control" required></textarea>
     </div>
+
+    <input type="hidden" name="operatore" value="{{ selected_operator }}">
+
     <button type="submit" class="btn btn-primary btn-sm">Aggiungi Nota</button>
 </form>
 
 {% endblock %}
+
