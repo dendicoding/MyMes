@@ -37,7 +37,7 @@ body {
 }
 
 .navbar a:hover {
-    background-color: #0056b3;
+    background-color: #060EAA;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     transform: translateY(-3px);
 }
@@ -393,7 +393,7 @@ select option:hover {
 }
 
 .machine-card {
-    background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+    background: linear-gradient(135deg, #030B77, #0C1A55);
     border-radius: 15px;
     padding: 20px;
     color: #fff;
@@ -406,7 +406,7 @@ select option:hover {
 .machine-card:hover {
     transform: translateY(-12px); /* Maggiore sollevamento al passaggio del mouse */
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4); /* Ombra esterna più marcata al passaggio del mouse */
-    background: linear-gradient(135deg, #333333, #666666);
+    background: linear-gradient(135deg, #030B77, #00BFFF);
 }
 
 .machine-card::before {
