@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Block Machine</h1>
+<div class="machine-details">
+    <h2>Machine ID: {{ machine.machine_id }}</h2>
+    <p><strong>Status:</strong> {{ machine.status }}</p>
+    <p><strong>Current Order:</strong> {{ machine.current_order if machine.current_order else 'None' }}</p>
+    <p><strong>Current Task:</strong> {{ machine.current_task if machine.current_task else 'None' }}</p>
+    <p><strong>Start Time:</strong> {{ machine.start_time if machine.start_time else 'None' }}</p>
+</div>
+<div class="block-machine-form">
+    <form method="POST" action="{{ url_for('block_machine', machine_id=machine.machine_id) }}">
+        <div class="form-group">
+            <label for="causal">Causal of Block:</label>
+            <input type="text" id="causal" name="causal" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-danger">Block Machine</button>
+    </form>
+</div>
+{% endblock %}

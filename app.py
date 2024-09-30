@@ -1782,7 +1782,38 @@ def generate_pdf():
     return send_file(pdf_stream, as_attachment=True, download_name='notes.pdf', mimetype='application/pdf')
 
     
-
+# Route per visualizzare la pagina di blocco della macchina
+@app.route('/block_machine/<machine_id>', methods=['GET', 'POST'])
+def block_machine(machine_id):
+    if request.method == 'POST':
+        causal = request.form.get('causal')
+        
+        # Connessione al database
+        conn = pyodbc.connect(CONNECTION_STRING)
+        cursor = conn.cursor()
+        
+        # Aggiorna lo stato della macchina a 'blocked' e aggiungi la causale
+        cursor.execute("""
+            UPDATE Macchine 
+            SET status = ?, causal = ? 
+            WHERE machine_id = ?
+        """, ('blocked', causal, machine_id))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return redirect(url_for('view_machines'))
+    
+    # Se la richiesta è GET, ottieni i dettagli della macchina
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Macchine WHERE machine_id = ?", (machine_id,))
+    machine = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    return render_template('block_machine.html', machine=machine)
     
 
 

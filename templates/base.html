@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My MES{% endblock %}</title>
+    <title>{% block title %}FactoryAI{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -211,7 +211,15 @@
     {% if not hide_nav %}
     <div class="navbar">
         <img src="{{ url_for('static', filename='icon.png') }}" alt="Site Icon">
-        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+            
+        <div class="dropdown">
+            <button class="dropbtn">Dashboard</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('dashboard') }}">Orders</a>
+                <a href="{{ url_for('lot_dashboard') }}">Lots</a>
+            </div>
+        </div>
 
         <div class="dropdown">
             <button class="dropbtn">Orders</button>
@@ -254,7 +262,6 @@
             <div class="dropdown-content">
                 <a href="{{ url_for('create_lot') }}">Create Lot</a>
                 <a href="{{ url_for('view_lots') }}">View Lots</a>
-                <a href="{{ url_for('lot_dashboard') }}">Dashboard</a>
             </div>
         </div>
 

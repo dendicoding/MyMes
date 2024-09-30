@@ -14,7 +14,7 @@ body {
 
 /* Navbar styling */
 .navbar {
-    background: linear-gradient(90deg, #007bff, #0056b3);
+    background: linear-gradient(90deg, #061455, #060EAA);
     color: #fff;
     padding: 15px;
     text-align: center;
@@ -79,7 +79,7 @@ body {
 
 /* Button styling */
 .button, .btn, .btn-primary {
-    background-color: #007bff;
+    background-color: #060EAA;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -93,6 +93,36 @@ body {
     border-radius: 12px;
     transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Stile per il pulsante btn-danger */
+.btn-danger {
+    background-color: #FF5733; /* Rosso Corallo */
+    font-family: 'Poppins', sans-serif;
+    margin: 8px 4px;
+    color: #FFFFFF; /* Testo bianco */
+    border: 1px solid #FF5733; /* Bordo rosso corallo */
+    border-radius: 12px; /* Arrotondamento degli angoli */
+    padding: 12px 24px; /* Spaziatura interna */
+    font-size: 16px; /* Dimensione del testo */
+    font-weight: bold; /* Testo in grassetto */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.btn-danger:hover {
+    background-color: #E64E2C; /* Scuro sul rosso corallo */
+    border-color: #E64E2C; /* Colore del bordo in hover */
+}
+
+.btn-danger:active {
+    background-color: #CC4626; /* Colore ancora più scuro per lo stato attivo */
+    border-color: #CC4626;
+}
+
+.btn-danger:focus {
+    outline: none; /* Rimuove il contorno predefinito */
+    box-shadow: 0 0 0 0.2rem rgba(255, 87, 51, 0.5); /* Ombra del focus */
 }
 
 
@@ -155,7 +185,7 @@ body {
 
 /* Table headers */
 .table th, th {
-    background-color: #007bff;
+    background-color: #061455;
     color: #fff;
     padding: 15px 20px;
     font-weight: 600; /* Bold but not uppercase */
@@ -272,10 +302,10 @@ body {
 
 /* Titles styling */
 h2 {
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #061455;
     padding-bottom: 10px;
     margin-bottom: 20px;
-    color: #007bff;
+    color: #061455;
     animation: slideIn 0.5s ease-in-out;
 }
 
@@ -287,7 +317,7 @@ select {
     border-radius: 12px;
     font-size: 16px;
     background-color: #fff;
-    color: #333;
+    color: #061455;
     appearance: none;
     background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23333" stroke-width="1" fill="none"/></svg>') no-repeat right 16px center;
     background-size: 12px;
@@ -411,8 +441,24 @@ select option:hover {
     line-height: 1.6;
 }
 
+.machine-card {
+    position: relative;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.machine-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1; /* Assicurati che la card venga sollevata */
+}
+
+.machine-card .btn {
+    position: relative;
+    z-index: 2; /* Il pulsante ha un `z-index` maggiore */
+}
+
 .btn-secondary {
-    background-color: #1E90FF;
+    background-color: #061455;
     color: #FFFFFF;
     padding: 10px 20px;
     text-decoration: none;
