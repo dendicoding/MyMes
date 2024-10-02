@@ -16,13 +16,18 @@
                 <p><strong>Current Task:</strong> {{ machine.current_task if machine.current_task else 'None' }}</p>
                 <p><strong>Start Time:</strong> {{ machine.start_time if machine.start_time else 'None' }}</p>
             </div>
-            <!-- Pulsante per bloccare la macchina -->
+            <!-- Pulsante per bloccare o sbloccare la macchina -->
             <div class="machine-card-footer">
-                <a href="{{ url_for('block_machine', machine_id=machine.machine_id) }}" class="btn btn-danger">Block Machine</a>
+                {% if machine.status == 'blocked' %}
+                    <a href="{{ url_for('unblock_machine', machine_id=machine.machine_id) }}" class="btn btn-success">Unblock Machine</a>
+                {% else %}
+                    <a href="{{ url_for('block_machine', machine_id=machine.machine_id) }}" class="btn btn-danger">Block Machine</a>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
+
     <h2>Add New Machine</h2>
     <a href="{{ url_for('add_machine') }}" class="btn btn-primary">Add Machine</a>
 </div>

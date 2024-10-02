@@ -3,15 +3,22 @@
 {% block content %}
 <h1>Dashboard</h1>
 
-<!-- Aggiungi il canvas per il grafico a torta con dimensioni ridotte -->
+<!-- Aggiungi il canvas per i tre grafici allineati -->
 <div class="dashboard">
     <div style="display: flex; justify-content: space-around; align-items: flex-start;">
         <!-- Riquadro per il pie chart sullo status degli ordini -->
-        <div style="width: 50%; max-width: 400px; margin: auto;">
+        <div style="width: 22.5%; max-width: 400px; margin: auto;">
             <h2>Order Status Distribution</h2>
             <canvas id="orderStatusPieChart" width="300" height="300"></canvas>
         </div>
-    <!-- Riquadro per il bar chart sulle quantità degli ordini -->    
+        
+        <!-- Riquadro per il donut chart sulle quantità degli ordini -->
+        <div style="width: 22.5%; max-width: 400px; margin: auto;">
+            <h2>Order Quantity Distribution</h2>
+            <canvas id="orderQuantityDonutChart" width="300" height="300"></canvas>
+        </div>
+
+        <!-- Riquadro per il bar chart sulle quantità degli ordini -->
         <div style="width: 50%; max-width: 400px; margin: auto;">
             <h2>Order Details</h2>
             <div>
@@ -27,7 +34,7 @@
             </div>
             <canvas id="orderComparisonBarChart" width="400" height="300"></canvas>
         </div>
-</div>
+    </div>
 
     <!-- Sezione per la visualizzazione degli ordini e delle macchine -->
     <h2>Production Orders</h2>
@@ -65,7 +72,7 @@
         </thead>
         <tbody>
             {% for machine in machines %}
-                <tr class="{% if machine.status == 'idle' %}machine-status-idle{% elif machine.status == 'working' %}machine-status-working{% endif %}">
+                <tr class="{% if machine.status == 'idle' %}machine-status-idle{% elif machine.status == 'working' %}machine-status-working{% elif machine.status == 'blocked' %}machine-status-blocked{% endif %}">
                     <td>{{ machine.machine_id }}</td>
                     <td>{{ machine.status }}</td>
                     <td>{{ machine.current_order if machine.current_order else 'None' }}</td>
@@ -73,41 +80,6 @@
             {% endfor %}
         </tbody>
     </table>
-
-    <!-- {% if session.role == 'manager' %}
-    <h2>Assign Order to Machine and Operator</h2>
-    <form method="POST" action="{{ url_for('assign_order') }}">
-        <div class="form-group">
-            <label for="order_id">Order ID</label>
-            <select id="order_id" name="order_id" required>
-                <option value="" disabled selected>Select Order</option>
-                {% for order in orders %}
-                    <option value="{{ order.order_id }}">{{ order.order_id }} - {{ order.product }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="machine_id">Machine ID</label>
-            <select id="machine_id" name="machine_id" required>
-                <option value="" disabled selected>Select Machine</option>
-                {% for machine in machines %}
-                    <option value="{{ machine.machine_id }}">{{ machine.machine_id }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="name">Operator</label>
-            <select id="name" name="name" required>
-                <option value="" disabled selected>Select Operator</option>
-                {% for operator in operators %}
-                    <option value="{{ operator.name }}">{{ operator.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Assign Order</button>
-    </form>
-    {% endif %}
-    -->
 </div>
 
 <!-- Include Chart.js -->
@@ -132,10 +104,26 @@
         return statusCount;
     }
 
+    // Funzione per calcolare la distribuzione delle quantità degli ordini
+    function getOrderQuantityDistribution(orders) {
+        const quantities = {
+            total_requested: 0,
+            total_residual: 0
+        };
+
+        orders.forEach(order => {
+            quantities.total_requested += order.initial_quantity;
+            quantities.total_residual += order.quantity;
+        });
+
+        return quantities;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Ordini per il grafico (dovresti passare i tuoi dati qui)
         const orders = {{ orders|tojson|safe }};
         const statusDistribution = getOrderStatusDistribution(orders);
+        const quantityDistribution = getOrderQuantityDistribution(orders);
 
         // Configurazione del grafico a torta
         const ctxPie = document.getElementById('orderStatusPieChart').getContext('2d');
@@ -159,7 +147,7 @@
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'bottom',
                     },
                     tooltip: {
                         callbacks: {
@@ -167,6 +155,40 @@
                                 const label = tooltipItem.label;
                                 const value = tooltipItem.raw;
                                 return `${label}: ${value} Orders`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Configurazione del donut chart
+        const ctxDonut = document.getElementById('orderQuantityDonutChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Requested Quantity', 'Residual Quantity'],
+                datasets: [{
+                    label: 'Order Quantity Distribution',
+                    data: [
+                        quantityDistribution.total_requested,
+                        quantityDistribution.total_residual
+                    ],
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const label = tooltipItem.label;
+                                const value = tooltipItem.raw;
+                                return `${label}: ${value} Units`;
                             }
                         }
                     }

@@ -125,6 +125,27 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(255, 87, 51, 0.5); /* Ombra del focus */
 }
 
+.btn-success {
+    background-color: #55A606; /* Verde chiaro */
+    border-color: #55A606; /* Colore del bordo */
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #145506; /* Verde scuro per hover */
+    border-color: #145506; /* Colore del bordo in hover */
+}
+
+.btn-success:active {
+    background-color: #0F4504; /* Verde ancora più scuro per lo stato attivo */
+    border-color: #0F4504; /* Colore del bordo per lo stato attivo */
+}
+
+.btn-success:focus {
+    outline: none; /* Rimuove il contorno predefinito */
+    box-shadow: 0 0 0 0.2rem rgba(84, 165, 6, 0.5); /* Ombra per lo stato di focus */
+}
+
 
 .button:hover, .btn:hover, .btn-primary:hover {
     background-color: #0056b3;
@@ -480,19 +501,8 @@ select option:hover {
     background-color: lightgreen;
 }
 
-
-.btn-secondary {
-    background-color: #1E90FF;
-    color: #FFFFFF;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background-color: #1C86EE;
-    transform: translateY(-3px);
+.machine-status-blocked {
+    background-color: rgb(255, 118, 118);
 }
 
 /* Machine status colors */

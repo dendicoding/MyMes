@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Modifica Operatore</h1>
+<form method="POST" action="{{ url_for('edit_operator', operator_id=operator.operator_id) }}">
+    <div class="form-group">
+        <label for="name">Nome Operatore:</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ operator.name }}" required>
+    </div>
+    <button type="submit" class="btn btn-success">Salva Modifiche</button>
+</form>
+{% endblock %}

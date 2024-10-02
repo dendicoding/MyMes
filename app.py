@@ -1656,7 +1656,7 @@ def notes():
 
     # Query per le note
     query = """
-        SELECT n.creation_time, n.note, n.cliente
+        SELECT n.creation_time, n.note, n.cliente, n.ore
         FROM Personal_Reports n 
         WHERE n.operator = ?
     """
@@ -1698,13 +1698,15 @@ def add_note():
     operatore_id = request.form['operatore']
     nota = request.form['nota']
     cliente = request.form['cliente']
+    ore = request.form['ore']
 
     print("operatore_id:", operatore_id)
     print("nota:", nota)
     print("cliente:", cliente)
+    print("ore:", ore)
 
     # Inserisci la nuova nota nel database
-    cursor.execute("INSERT INTO Personal_Reports (operator, note, cliente) VALUES (?, ?, ?)", operatore_id, nota, cliente)
+    cursor.execute("INSERT INTO Personal_Reports (operator, note, cliente, ore) VALUES (?, ?, ?, ?)", operatore_id, nota, cliente, ore)
     conn.commit()
 
     return redirect('/notes')
@@ -1738,7 +1740,7 @@ def generate_pdf():
     print(selected_operator, selected_client, selected_date, nome_cliente)
     # Query per le note
     query = """
-        SELECT n.creation_time, n.note, n.cliente
+        SELECT n.creation_time, n.note, n.cliente, n.ore
         FROM Personal_Reports n 
         WHERE n.operator = ?
     """
@@ -1766,7 +1768,7 @@ def generate_pdf():
     <h1>Note per {{ nome_operatore }}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h1>
     <ul>
         {% for nota in note %}
-            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}</li>
+            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}- {{ nota[3] }}</li>
         {% endfor %}
     </ul>
     """, nome_operatore=nome_operatore, nome_cliente=nome_cliente, selected_date=selected_date, note=note)
@@ -1816,8 +1818,55 @@ def block_machine(machine_id):
     return render_template('block_machine.html', machine=machine)
     
 
-
+@app.route('/unblock_machine/<machine_id>', methods=['GET'])
+def unblock_machine(machine_id):
+    # Connessione al database
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
     
+    # Aggiorna lo stato della macchina a 'blocked' e aggiungi la causale
+    cursor.execute("""
+        UPDATE Macchine 
+        SET status = ? 
+        WHERE machine_id = ?
+    """, ('idle',machine_id))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('view_machines'))  # Reindirizza alla pagina delle macchine
+
+
+@app.route('/operator/edit/<int:operator_id>', methods=['GET', 'POST'])
+def edit_operator(operator_id):
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        # Ricevi dati dal form di modifica
+        name = request.form['name']
+
+        # Esegui l'aggiornamento del database
+        cursor.execute("""
+            UPDATE Operatori
+            SET name = ?
+            WHERE operator_id = ?
+        """, (name, operator_id))
+        conn.commit()
+        conn.close()
+        
+        flash('Operator updated successfully', 'success')
+        return redirect(url_for('view_operators'))
+
+    # Recupera i dati attuali dell'operatore per visualizzarli nel form di modifica
+    cursor.execute("SELECT * FROM Operatori WHERE operator_id = ?", (operator_id,))
+    operator = cursor.fetchone()
+    conn.close()
+
+    return render_template('edit_operator.html', operator=operator)
+
+
+
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
 def index():
