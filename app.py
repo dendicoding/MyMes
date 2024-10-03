@@ -1763,20 +1763,125 @@ def generate_pdf():
 
     cursor.execute(query, params)
     note = cursor.fetchall()
-
+    totale_ore = sum(float(nota[3]) for nota in note)
     # Chiudi la connessione
     cursor.close()
     conn.close()
 
+    import base64
+
+    # Leggi il file immagine
+    with open('static/logo.png', 'rb') as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+
     # Genera l'HTML per le note
     html = render_template_string("""
-    <h1>Note per {{ nome_operatore }}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h1>
-    <ul>
-        {% for nota in note %}
-            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}- {{ nota[3] }}- {{ nota[4] }}</li>
-        {% endfor %}
-    </ul>
-    """, nome_operatore=nome_operatore, nome_cliente=nome_cliente, selected_date=selected_date, note=note)
+        <html>
+        <head>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+                
+                body {
+                    font-family: 'Poppins', sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #333;
+                    background-color: #f9f9f9;
+                }
+
+                h1 {
+                    font-size: 24px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    text-align: center;
+                    margin-bottom: 20px;
+                    border-bottom: 2px solid #2c3e50;
+                    padding-bottom: 10px;
+                }
+
+                ul {
+                    list-style-type: none;
+                    padding-left: 0;
+                }
+
+                li {
+                    background-color: #fff;
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    margin-bottom: 10px;
+                    border-radius: 5px;
+                }
+
+                .logo {
+                    text-align: left;
+                    margin-bottom: 20px;
+                }
+
+                .logo img {
+                    width: 150px;
+                }
+
+                .note-header {
+                    font-weight: 600;
+                    color: #2980b9;
+                }
+
+                .note-content {
+                    font-weight: 400;
+                    color: #34495e;
+                }
+
+                .total-hours {
+                    font-weight: 600;
+                    color: #e74c3c;
+                    font-size: 18px;
+                    text-align: right;
+                    margin-top: 20px;
+                    border-top: 2px solid #2c3e50;
+                    padding-top: 10px;
+                }
+
+                footer {
+                    text-align: center;
+                    font-size: 12px;
+                    color: #95a5a6;
+                    margin-top: 30px;
+                }
+            </style>
+        </head>
+        <body>
+            <!-- Inserisci il logo in alto a sinistra -->
+            <div class="logo">
+                <img src="data:image/png;base64,{{ encoded_image }}" alt="Logo">
+            </div>
+
+            <h1>Rapportino Intervento di {{ nome_operatore }}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h1>
+
+            <ul>
+                {% for nota in note %}
+                    <li>
+                        <span class="note-header">Intervento:</span> <span class="note-content">{{ nota[1] }}</span> <br>
+                        <span class="note-header">Ore:</span> <span class="note-content">{{ nota[3] }}</span> <br>
+                        <span class="note-header">Tipologia:</span> <span class="note-content">{{ nota[4] }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- Totale delle ore -->
+            <div class="total-hours">
+                Totale Ore: {{ totale_ore }}
+            </div>
+
+            <footer>
+                Generato automaticamente dal sistema FactoryAI | {{ nome_operatore }} | KIBSStudio | {{ selected_date }}
+            </footer>
+        </body>
+        </html>
+        """, nome_operatore=nome_operatore, nome_cliente=nome_cliente, selected_date=selected_date, note=note, encoded_image=encoded_image, totale_ore=totale_ore)
+
+
+
 
 
     # Genera il PDF senza salvare direttamente su file
@@ -2017,6 +2122,47 @@ def elimina_attivita(activity_name):
     cursor.close()
     connection.close()
 
+@app.route('/counterparts')
+def display_counterparts():
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+
+    # Query to retrieve all counterparts
+    cursor.execute("SELECT counterpart_id, name, type, address, phone, email FROM Counterparts")
+    counterparts = cursor.fetchall()
+
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+    return render_template('counterparts.html', counterparts=counterparts)
+
+@app.route('/counterparts/create', methods=['POST'])
+def create_counterpart():
+    name = request.form['name']
+    type = request.form['type']
+    address = request.form.get('address', None)  # Use None if not provided
+    phone = request.form.get('phone', None)      # Use None if not provided
+    email = request.form.get('email', None)      # Use None if not provided
+
+    conn = pyodbc.connect(CONNECTION_STRING)
+    cursor = conn.cursor()
+
+    # Insert the new counterpart into the database
+    cursor.execute("""
+        INSERT INTO Counterparts (name, type, address, phone, email)
+        VALUES (?, ?, ?, ?, ?)
+    """, (name, type, address, phone, email))
+
+    # Commit the transaction
+    conn.commit()
+
+    # Close the database connection
+    cursor.close()
+    conn.close()
+
+    # Redirect back to the display page
+    return redirect(url_for('display_counterparts'))
 
 #---------------------------------------------------------ALTRO--------
 @app.route('/')
