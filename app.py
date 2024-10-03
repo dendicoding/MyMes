@@ -1639,6 +1639,9 @@ def notes():
     cursor.execute("SELECT operator_id, name FROM Operatori")
     operatori = cursor.fetchall()
 
+    cursor.execute("SELECT activity FROM Activities")
+    attivita = [row[0] for row in cursor.fetchall()]
+
     selected_operator = request.form.get('operatore')
     selected_client = request.form.get('cliente')
     selected_date = request.form.get('data')
@@ -1656,7 +1659,7 @@ def notes():
 
     # Query per le note
     query = """
-        SELECT n.creation_time, n.note, n.cliente, n.ore
+        SELECT n.creation_time, n.note, n.cliente, n.ore, n.activity
         FROM Personal_Reports n 
         WHERE n.operator = ?
     """
@@ -1688,7 +1691,7 @@ def notes():
                            selected_client=selected_client,
                            selected_date=selected_date,
                            nome_operatore=nome_operatore,
-                           nome_cliente=nome_cliente)
+                           nome_cliente=nome_cliente, attivita=attivita)
 
 
 
@@ -1699,14 +1702,16 @@ def add_note():
     nota = request.form['nota']
     cliente = request.form['cliente']
     ore = request.form['ore']
+    attivita = request.form['attivita']
 
     print("operatore_id:", operatore_id)
     print("nota:", nota)
     print("cliente:", cliente)
     print("ore:", ore)
+    print("attivita:", attivita)
 
     # Inserisci la nuova nota nel database
-    cursor.execute("INSERT INTO Personal_Reports (operator, note, cliente, ore) VALUES (?, ?, ?, ?)", operatore_id, nota, cliente, ore)
+    cursor.execute("INSERT INTO Personal_Reports (operator, note, cliente, ore, activity) VALUES (?, ?, ?, ?, ?)", operatore_id, nota, cliente, ore, attivita)
     conn.commit()
 
     return redirect('/notes')
@@ -1740,7 +1745,7 @@ def generate_pdf():
     print(selected_operator, selected_client, selected_date, nome_cliente)
     # Query per le note
     query = """
-        SELECT n.creation_time, n.note, n.cliente, n.ore
+        SELECT n.creation_time, n.note, n.cliente, n.ore, n.activity
         FROM Personal_Reports n 
         WHERE n.operator = ?
     """
@@ -1768,7 +1773,7 @@ def generate_pdf():
     <h1>Note per {{ nome_operatore }}{% if nome_cliente %} per {{ nome_cliente }}{% endif %}{% if selected_date %} del {{ selected_date }}{% endif %}</h1>
     <ul>
         {% for nota in note %}
-            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}- {{ nota[3] }}</li>
+            <li><strong>{{ nota[0] }}</strong>: {{ nota[1] }} - {{ nota[2] }}- {{ nota[3] }}- {{ nota[4] }}</li>
         {% endfor %}
     </ul>
     """, nome_operatore=nome_operatore, nome_cliente=nome_cliente, selected_date=selected_date, note=note)
@@ -1781,6 +1786,7 @@ def generate_pdf():
     pdf_stream = io.BytesIO(pdf)
 
     # Restituisci il PDF al client
+    flash('File sent successfully!', 'success')
     return send_file(pdf_stream, as_attachment=True, download_name='notes.pdf', mimetype='application/pdf')
 
     
@@ -1804,7 +1810,7 @@ def block_machine(machine_id):
         conn.commit()
         cursor.close()
         conn.close()
-        
+        flash('Machine blocked successfully!', 'success')
         return redirect(url_for('view_machines'))
     
     # Se la richiesta è GET, ottieni i dettagli della macchina
@@ -1834,6 +1840,7 @@ def unblock_machine(machine_id):
     conn.commit()
     cursor.close()
     conn.close()
+    flash('Machine unblocked successfully!', 'success')
     return redirect(url_for('view_machines'))  # Reindirizza alla pagina delle macchine
 
 
@@ -1865,6 +1872,150 @@ def edit_operator(operator_id):
 
     return render_template('edit_operator.html', operator=operator)
 
+@app.route('/add_activity', methods=['GET', 'POST'])
+def add_activity():
+    if request.method == 'POST':
+        new_activity = request.form['attivita']
+        
+        connection = pyodbc.connect(CONNECTION_STRING)
+        cursor = connection.cursor()
+        
+        # Query per inserire la nuova attività
+        query = "INSERT INTO activities (activity) VALUES (?)"
+        cursor.execute(query, new_activity)
+        connection.commit()
+        
+        cursor.close()
+        connection.close()
+        flash('Activity inserted successfully!', 'success')
+        # Reindirizza dopo l'inserimento per evitare il reinvio del modulo
+        return redirect(url_for('add_activity'))
+
+    # Se è una richiesta GET, recupera tutte le attività
+    activities = recupera_tutte_le_attivita()
+    
+    return render_template('add_activity.html', activities=activities)
+
+# Funzione per recuperare tutte le attività
+def recupera_tutte_le_attivita():
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    query = "SELECT activity FROM activities"
+    cursor.execute(query)
+    activities = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    
+    return [{"name": activity.activity} for activity in activities]
+
+
+# Route per la dashboard
+@app.route('/personal_reports_dashboard')
+def personal_reports_dashboard():
+    # Recupera tutti i report personali
+    all_reports = recupera_tutti_i_report()
+    # Recupera tutti gli operatori
+    operators = recupera_operatori()
+    
+    return render_template('personal_reports_dashboard.html', all_reports=all_reports, operators=operators)
+
+# Route per recuperare i report dell'operatore selezionato
+@app.route('/get_reports_for_operator/<int:operator_id>')
+def get_reports_for_operator(operator_id):
+    reports = recupera_report_per_operatore(operator_id)
+    return jsonify(reports)
+
+# Funzioni per recuperare i report e gli operatori dal database
+def recupera_tutti_i_report():
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    # Query per recuperare attività e ore da tutti i report
+    query = "SELECT activity, ore FROM personal_reports"
+    cursor.execute(query)
+    reports = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    
+    return [{"activity": report.activity, "hours": report.ore} for report in reports]
+
+def recupera_operatori():
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    # Query per recuperare gli operatori
+    query = "SELECT operator_id, name FROM Operatori"
+    cursor.execute(query)
+    operators = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    
+    return [{"id": operator.operator_id, "name": operator.name} for operator in operators]
+
+def recupera_report_per_operatore(operator_id):
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    # Query per recuperare attività e ore per l'operatore selezionato
+    query = "SELECT activity, ore FROM personal_reports WHERE operator = ?"
+    cursor.execute(query, operator_id)
+    reports = cursor.fetchall()
+    
+    cursor.close()
+    connection.close()
+    
+    # Restituisce sia l'attività che le ore per ogni report
+    return [{"activity": report.activity, "hours": report.ore} for report in reports]
+
+
+@app.route('/edit_activity/<string:activity_name>', methods=['GET', 'POST'])
+def edit_activity(activity_name):
+    if request.method == 'POST':
+        new_activity_name = request.form['attivita']
+        # Funzione per aggiornare l'attività nel database
+        aggiorna_attivita(activity_name, new_activity_name)
+        flash('Activity updated successfully!', 'success')
+        return redirect(url_for('add_activity'))
+    
+    return render_template('edit_activity.html', activity_name=activity_name)
+
+@app.route('/delete_activity/<string:activity_name>', methods=['GET', 'POST'])
+def delete_activity(activity_name):
+    if request.method == 'POST':
+        # Funzione per eliminare l'attività dal database
+        elimina_attivita(activity_name)
+        flash('Activity deleted successfully!', 'success')
+        return redirect(url_for('add_activity'))
+    
+
+
+# Funzione per aggiornare l'attività nel database
+def aggiorna_attivita(old_name, new_name):
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    query = "UPDATE activities SET activity = ? WHERE activity = ?"
+    cursor.execute(query, (new_name, old_name))
+    
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+# Funzione per eliminare l'attività dal database
+def elimina_attivita(activity_name):
+    connection = pyodbc.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    
+    query = "DELETE FROM activities WHERE activity = ?"
+    cursor.execute(query, (activity_name,))
+    
+    connection.commit()
+    cursor.close()
+    connection.close()
 
 
 #---------------------------------------------------------ALTRO--------

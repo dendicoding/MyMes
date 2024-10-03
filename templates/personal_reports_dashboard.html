@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Personal Reports Dashboard</h1>
+
+<!-- Aggiungi i canvas per i due grafici -->
+<div class="dashboard">
+    <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+        <!-- Primo grafico: attività per tutti i report -->
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Activity Distribution (All Reports)</h2>
+            <canvas id="activityPieChartAll" width="300" height="300"></canvas>
+        </div>
+        
+        <!-- Secondo grafico: ore per attività per l'operatore selezionato -->
+        <div style="width: 50%; max-width: 400px; margin: auto;">
+            <h2>Total Hours per Activity (Selected Operator)</h2>
+            <div>
+                <label for="operatorSelect">Select Operator:</label>
+                <select id="operatorSelect">
+                    <option value="" disabled selected>Select an Operator</option>
+                    {% for operator in operators %}
+                        <option value="{{ operator.id }}">{{ operator.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <canvas id="activityBarChartOperator" width="400" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Funzione per calcolare la distribuzione delle attività
+    function getActivityDistribution(reports) {
+        const activityCount = {};
+        
+        reports.forEach(report => {
+            const activity = report.activity;
+            if (activityCount[activity]) {
+                activityCount[activity]++;
+            } else {
+                activityCount[activity] = 1;
+            }
+        });
+        
+        return activityCount;
+    }
+
+    // Reports per il grafico (dovresti passare i tuoi dati qui)
+    const allReports = {{ all_reports|tojson|safe }};
+    const activityDistributionAll = getActivityDistribution(allReports);
+
+    // Configurazione del grafico a torta per tutti i report
+    const ctxPieAll = document.getElementById('activityPieChartAll').getContext('2d');
+    new Chart(ctxPieAll, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(activityDistributionAll),
+            datasets: [{
+                label: 'Activity Distribution',
+                data: Object.values(activityDistributionAll),
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const label = tooltipItem.label;
+                            const value = tooltipItem.raw;
+                            return `${label}: ${value} Reports`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Configurazione del grafico a barre per l'operatore selezionato
+    const ctxBarOperator = document.getElementById('activityBarChartOperator').getContext('2d');
+    let operatorBarChart = new Chart(ctxBarOperator, {
+        type: 'bar',
+        data: {
+            labels: [], // Vuoto per ora
+            datasets: [{
+                label: 'Total Hours',
+                data: [],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const label = tooltipItem.label;
+                            const value = tooltipItem.raw;
+                            return `${label}: ${value} Hours`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Total Hours'
+                    }
+                }
+            }
+        }
+    });
+
+        // Funzione per aggiornare il grafico a barre dell'operatore selezionato
+        document.getElementById('operatorSelect').addEventListener('change', function (event) {
+            const operatorId = event.target.value;
+
+            // Recupera i report per l'operatore selezionato
+            fetch(`/get_reports_for_operator/${operatorId}`)
+                .then(response => response.json())
+                .then(reports => {
+                    console.log(reports); // Controlla i dati ricevuti
+                    const hoursPerActivity = {};
+
+                    // Calcola le ore totali per ogni attività
+                    reports.forEach(report => {
+                        const activity = report.activity;
+                        const hours = parseFloat(report.hours); // Assicurati che 'hours' sia numerico
+
+                        if (hoursPerActivity[activity]) {
+                            hoursPerActivity[activity] += hours;
+                        } else {
+                            hoursPerActivity[activity] = hours;
+                        }
+                    });
+
+                    // Controlla i dati calcolati
+                    console.log('Hours per Activity:', hoursPerActivity);
+
+                    // Aggiorna i dati del grafico
+                    operatorBarChart.data.labels = Object.keys(hoursPerActivity);
+                    operatorBarChart.data.datasets[0].data = Object.values(hoursPerActivity);
+                    operatorBarChart.update();
+                })
+                .catch(error => console.error('Error fetching reports:', error));
+        });
+
+</script>
+{% endblock %}

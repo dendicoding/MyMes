@@ -15,9 +15,11 @@
                 <p><strong>Status:</strong> {{ operator.status }}</p>
                 <p><strong>Current Task:</strong> {{ operator.current_task }}</p>
             </div>
-            <!-- Pulsante per modificare i dati dell'operatore -->
+            <!-- Pulsante per modificare i dati dell'operatore con icona colorata di bianco -->
             <div class="machine-card-footer">
-                <a href="{{ url_for('edit_operator', operator_id=operator.operator_id) }}" class="btn btn-primary">Edit Operator</a>
+                <a href="{{ url_for('edit_operator', operator_id=operator.operator_id) }}" class="btn btn-primary">
+                    <span class="material-icons" style="color: white;">edit</span>
+                </a>
             </div>
         </div>
         {% endfor %}

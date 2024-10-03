@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Activity</h1>
+
+<!-- Form per modificare l'attività -->
+<div class="form-group">
+    <form method="POST">
+        <div class="form-group">
+            <label for="attivita">Activity Name:</label>
+            <input type="text" id="attivita" name="attivita" class="form-control" value="{{ activity_name }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Activity</button>
+    </form>
+</div>
+
+{% endblock %}

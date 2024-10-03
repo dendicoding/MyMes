@@ -36,7 +36,7 @@
                         </form>
                     {% endif %}
                     <!-- Delete Icon Button -->
-                    <form action="{{ url_for('delete_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
+                    <form action="{{ url_for('delete_order', order_id=order.order_id) }}" method="POST" style="display:inline;" onclick="return confirm('Are you sure you want to delete this order?');">
                         <button type="submit" class="btn-link" title="Delete">
                             <i class="material-icons">delete_forever</i>
                         </button>

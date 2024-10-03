@@ -50,13 +50,28 @@
 
 <div id="note-precedenti">
     {% if note %}
-        <ul class="list-group">
-            {% for nota in note %}
-                <li class="list-group-item">
-                    <strong>{{ nota['creation_time'] }}</strong>: {{ nota['note']}} - {{ nota['cliente'] }} - {{ nota['ore'] }}
-                </li>
-            {% endfor %}
-        </ul>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Data Creazione</th>
+                    <th>Nota</th>
+                    <th>Cliente</th>
+                    <th>Ore</th>
+                    <th>Attività</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in note %}
+                    <tr>
+                        <td>{{ nota['creation_time'] }}</td>
+                        <td>{{ nota['note'] }}</td>
+                        <td>{{ nota['cliente'] }}</td>
+                        <td>{{ nota['ore'] }}</td>
+                        <td>{{ nota['activity'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% elif selected_operator or selected_client %}
         <p>Nessuna nota trovata per i criteri selezionati.</p>
     {% endif %}
@@ -67,8 +82,6 @@
         <button type="submit" class="btn btn-primary btn-sm mt-2">Stampa PDF</button>
     </form>
 </div>
-
-<!-- Pulsante per generare il PDF -->
 
 <!-- Form per aggiungere una nuova nota -->
 <h2>Aggiungi Nuova Nota</h2>
@@ -105,6 +118,18 @@
             <label for="ore">Ore:</label>
             <input type="number" name="ore" id="ore" class="form-control" step="0.1" min="0" required>
         </div>
+
+        <!-- Campo per selezionare l'attività -->
+        <div class="form-group col-md-6">
+            <label for="attivita">Seleziona Attività:</label>
+            <select id="attivita" name="attivita" class="form-control" required>
+                <option value="" disabled selected>-- Seleziona un'attività --</option>
+                {% for attivita in attivita %}
+                    <option value="{{ attivita }}">{{ attivita }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
     </div>
         <!-- Campo per inserire la nuova nota -->
     <div class="form-group">

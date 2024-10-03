@@ -211,8 +211,7 @@
     {% if not hide_nav %}
     <div class="navbar">
         <img src="{{ url_for('static', filename='icon.png') }}" alt="Site Icon">
-
-            
+    
         <div class="dropdown">
             <button class="dropbtn">Dashboard</button>
             <div class="dropdown-content">
@@ -220,7 +219,7 @@
                 <a href="{{ url_for('lot_dashboard') }}">Lots</a>
             </div>
         </div>
-
+    
         <div class="dropdown">
             <button class="dropbtn">Orders</button>
             <div class="dropdown-content">
@@ -229,7 +228,7 @@
                 <a href="{{ url_for('report') }}">Report</a>
             </div>
         </div>
-
+    
         <div class="dropdown">
             <button class="dropbtn">Cycles</button>
             <div class="dropdown-content">
@@ -237,7 +236,7 @@
                 <a href="{{ url_for('create_cycle') }}">Create Cycle</a>
             </div>
         </div>
-        
+    
         <div class="dropdown">
             <button class="dropbtn">Tasks</button>
             <div class="dropdown-content">
@@ -245,7 +244,7 @@
                 <a href="{{ url_for('scheduler') }}">Scheduler</a>
             </div>
         </div>
-
+    
         <div class="dropdown">
             <button class="dropbtn">Resources</button>
             <div class="dropdown-content">
@@ -256,7 +255,7 @@
                 <a href="{{ url_for('create_product') }}">Create Product</a>
             </div>
         </div>
-
+    
         <div class="dropdown">
             <button class="dropbtn">Lots</button>
             <div class="dropdown-content">
@@ -264,13 +263,24 @@
                 <a href="{{ url_for('view_lots') }}">View Lots</a>
             </div>
         </div>
-
+    
         <a href="{{ url_for('view_machines') }}">Machines</a>
         <a href="{{ url_for('view_operators') }}">Operators</a>
+    
+        <!-- Nuovo dropdown Rapportini -->
+        <div class="dropdown">
+            <button class="dropbtn">Rapportini</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('notes') }}">View and Insert</a>
+                <a href="{{ url_for('add_activity') }}">Activities</a>
+                <a href="{{ url_for('personal_reports_dashboard') }}">Dashboard</a>
+            </div>
+        </div>
+    
         <a href="{{ url_for('chatbot') }}">Chatbot</a>
-        <a href="{{ url_for('notes') }}">Rapportini</a>
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
+    
     {% endif %}
     
     <div class="container">
