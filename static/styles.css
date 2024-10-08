@@ -551,4 +551,9 @@ select option:hover {
     border-radius: 6px;
 }
 
+.checkbox-align {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 

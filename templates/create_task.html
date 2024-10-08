@@ -6,7 +6,7 @@
 <!-- Create Task Form -->
 {% if session.role == 'manager' %}
     <h2>Create Task</h2>
-    <form method="POST" action="{{ url_for('insert_task') }}">
+    <form method="POST" action="{{ url_for('tasks.insert_task') }}">
         <div class="form-group">
             <label for="order_id">Order ID</label>
             <select id="order_id" name="order_id" required>

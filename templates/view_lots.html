@@ -29,7 +29,7 @@
             <td>{{ lot.expiration_date if lot.expiration_date else 'N/A' }}</td>
             <td>{{ lot.status }}</td>
             <td>
-                <a href="{{ url_for('view_lots_materials', lot_code=lot.lot_code) }}" class="btn-link">
+                <a href="{{ url_for('lots.view_lots_materials', lot_code=lot.lot_code) }}" class="btn-link">
                     <i class="material-icons">filter_list</i>
                 </a>
             </td>

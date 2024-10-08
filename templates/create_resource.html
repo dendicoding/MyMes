@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>Create New Resource</h1>
-<form action="{{ url_for('create_resource') }}" method="POST">
+<form action="{{ url_for('resources.create_resource') }}" method="POST">
     <div class="form-group">
         <label for="resource_name">Resource Name</label>
         <input type="text" id="resource_name" name="resource_name" class="form-control" required>

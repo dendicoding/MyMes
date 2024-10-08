@@ -4,7 +4,7 @@
 <h1>Gestione Note Operatore</h1>
 <!-- Form per selezionare l'operatore, il cliente e la data -->
 <div class="form-group">
-    <form method="POST" action="{{ url_for('notes') }}">
+    <form method="POST" action="{{ url_for('notes.notes') }}">
         <div class="form-row align-items-center">
             <!-- Menu a tendina per selezionare l'operatore -->
             <div class="col-md-4">
@@ -32,6 +32,7 @@
                 </div>
             </div>
 
+
             <!-- Filtro per selezionare la data -->
             <div class="col-md-4">
                 <div class="form-group">
@@ -58,6 +59,7 @@
                     <th>Cliente</th>
                     <th>Ore</th>
                     <th>Attività</th>
+                    <th>Trasferta</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +70,7 @@
                         <td>{{ nota['cliente'] }}</td>
                         <td>{{ nota['ore'] }}</td>
                         <td>{{ nota['activity'] }}</td>
+                        <td>{{ nota['away'] }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -75,7 +78,7 @@
     {% elif selected_operator or selected_client %}
         <p>Nessuna nota trovata per i criteri selezionati.</p>
     {% endif %}
-    <form method="POST" action="{{ url_for('generate_pdf') }}">
+    <form method="POST" action="{{ url_for('notes.generate_pdf') }}">
         <input type="hidden" name="operatore" value="{{ selected_operator }}">
         <input type="hidden" name="cliente" value="{{ selected_client }}">
         <input type="hidden" name="data" value="{{ selected_date }}">
@@ -84,8 +87,9 @@
 </div>
 
 <!-- Form per aggiungere una nuova nota -->
+<!-- Form per aggiungere una nuova nota -->
 <h2>Aggiungi Nuova Nota</h2>
-<form method="POST" action="{{ url_for('add_note') }}">
+<form method="POST" action="{{ url_for('notes.add_note') }}">
     <div class="form-row align-items-center">
         <!-- Menu a tendina per selezionare l'operatore -->
         <div class="col-md-4">
@@ -113,6 +117,7 @@
             </div>
         </div>
 
+
         <!-- Campo di input per inserire le ore -->
         <div class="form-group col-md-6">
             <label for="ore">Ore:</label>
@@ -130,15 +135,26 @@
             </select>
         </div>
 
+        <!-- Checkbox for 'away' status -->
+<!-- Checkbox for 'away' status -->
+    <div class="form-group col-md-6">
+        <div class="form-check checkbox-align mt-4">
+            <label class="form-check-label" for="away">Trasferta</label>
+            <input type="checkbox" name="away" id="away" class="form-check-input" value="1">
+        </div>
     </div>
-        <!-- Campo per inserire la nuova nota -->
+
+
+    </div>
+
+    <!-- Campo per inserire la nuova nota -->
     <div class="form-group">
         <label for="nota">Nuova Nota:</label>
         <textarea name="nota" id="nota" class="form-control" required></textarea>
     </div>
-    
 
     <button type="submit" class="btn btn-primary btn-sm">Aggiungi Nota</button>
 </form>
+
 
 {% endblock %}

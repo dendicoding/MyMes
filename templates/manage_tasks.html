@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>Declare Task Pieces</h1>
-<form method="POST" action="{{ url_for('manage_tasks', task_id=task_id) }}">
+<form method="POST" action="{{ url_for('tasks.manage_tasks', task_id=task_id) }}">
     <div class="form-group">
         <label for="task_id_display">Task ID</label>
         <!-- Campo di input di testo in sola lettura per mostrare il Task ID -->

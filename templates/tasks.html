@@ -8,7 +8,7 @@
     
     <!-- Start Task Form -->
 <h2>Start Task</h2>
-<form method="POST" action="{{ url_for('start_task') }}">
+<form method="POST" action="{{ url_for('tasks.start_task') }}">
     <div class="form-row align-items-center">
         <!-- Campo per il Task ID -->
         <div class="col-md-4">
@@ -107,7 +107,7 @@
                 {% if session.role == 'manager' %}
                 <td class="actions-column">
                     {% if task.status == 'in_progress' %}
-                        <form method="POST" action="{{ url_for('suspend_task', task_id=task.task_id) }}" style="display:inline;">
+                        <form method="POST" action="{{ url_for('tasks.suspend_task', task_id=task.task_id) }}" style="display:inline;">
                             <button type="submit" class="btn-link" title="Suspend">
                                 <i class="material-icons">pause</i>
                             </button>
@@ -115,7 +115,7 @@
                             <input type="hidden" name="order_id" value="{{ task.order_id }}">
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
-                        <form method="POST" action="{{ url_for('complete_task', task_id=task.task_id) }}" style="display:inline;">
+                        <form method="POST" action="{{ url_for('tasks.complete_task', task_id=task.task_id) }}" style="display:inline;">
                             <button type="submit" class="btn-link" title="Complete">
                                 <i class="material-icons">task_alt</i>
                             </button>
@@ -123,14 +123,14 @@
                             <input type="hidden" name="order_id" value="{{ task.order_id }}">
                             <input type="hidden" name="operator_id" value="{{ task.operator }}">
                         </form>
-                        <form action="{{ url_for('manage_tasks', task_id=task.task_id) }}" method="GET" style="display:inline;">
+                        <form action="{{ url_for('tasks.manage_tasks', task_id=task.task_id) }}" method="GET" style="display:inline;">
                             <button type="submit" class="btn-link" title="Declare">
                                 <i class="material-icons">add_box</i>
                             </button>
                         </form>
                         <!-- Nuovo pulsante per visualizzare i materiali associati al cycleID -->
                         <!-- Parte del template in cui accedi al cycle_id -->
-                        <form action="{{ url_for('view_materials', cycle_id=orders_dict[task.order_id].cycleID) }}" method="GET" style="display:inline;">
+                        <form action="{{ url_for('resources.view_materials', cycle_id=orders_dict[task.order_id].cycleID) }}" method="GET" style="display:inline;">
                             <button type="submit" class="btn-link" title="View Materials">
                                 <i class="material-icons">inventory</i>
                             </button>

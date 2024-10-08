@@ -215,71 +215,71 @@
         <div class="dropdown">
             <button class="dropbtn">Dashboard</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('dashboard') }}">Orders</a>
-                <a href="{{ url_for('lot_dashboard') }}">Lots</a>
+                <a href="{{ url_for('misc.dashboard') }}">Orders</a>
+                <a href="{{ url_for('lots.lot_dashboard') }}">Lots</a>
             </div>
         </div>
     
         <div class="dropdown">
             <button class="dropbtn">Orders</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('orders') }}">View Orders</a>
-                <a href="{{ url_for('create_order') }}">Create Order</a>
-                <a href="{{ url_for('report') }}">Report</a>
-                <a href="{{ url_for('display_counterparts') }}">Counterparts</a>
+                <a href="{{ url_for('orders.orders') }}">View Orders</a>
+                <a href="{{ url_for('orders.create_order') }}">Create Order</a>
+                <a href="{{ url_for('misc.report') }}">Report</a>
+                <a href="{{ url_for('counterparts.display_counterparts') }}">Counterparts</a>
             </div>
         </div>
     
         <div class="dropdown">
             <button class="dropbtn">Cycles</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('list_cycles') }}">View Cycles</a>
-                <a href="{{ url_for('create_cycle') }}">Create Cycle</a>
+                <a href="{{ url_for('cycles.list_cycles') }}">View Cycles</a>
+                <a href="{{ url_for('cycles.create_cycle') }}">Create Cycle</a>
             </div>
         </div>
     
         <div class="dropdown">
             <button class="dropbtn">Tasks</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('tasks') }}">View Tasks</a>
-                <a href="{{ url_for('scheduler') }}">Scheduler</a>
+                <a href="{{ url_for('tasks.tasks') }}">View Tasks</a>
+                <a href="{{ url_for('tasks.scheduler') }}">Scheduler</a>
             </div>
         </div>
     
         <div class="dropdown">
             <button class="dropbtn">Resources</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('view_all_materials') }}">View Materials</a>
-                <a href="{{ url_for('create_material') }}">Create Material</a>
-                <a href="{{ url_for('list_storage_movements') }}">Storage Movements</a>
-                <a href="{{ url_for('view_all_products') }}">View Products</a>
-                <a href="{{ url_for('create_product') }}">Create Product</a>
+                <a href="{{ url_for('resources.view_all_materials') }}">View Materials</a>
+                <a href="{{ url_for('resources.create_material') }}">Create Material</a>
+                <a href="{{ url_for('storage_movements.list_storage_movements') }}">Storage Movements</a>
+                <a href="{{ url_for('resources.view_all_products') }}">View Products</a>
+                <a href="{{ url_for('resources.create_product') }}">Create Product</a>
             </div>
         </div>
     
         <div class="dropdown">
             <button class="dropbtn">Lots</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('create_lot') }}">Create Lot</a>
-                <a href="{{ url_for('view_lots') }}">View Lots</a>
+                <a href="{{ url_for('lots.create_lot') }}">Create Lot</a>
+                <a href="{{ url_for('lots.view_lots') }}">View Lots</a>
             </div>
         </div>
     
-        <a href="{{ url_for('view_machines') }}">Machines</a>
-        <a href="{{ url_for('view_operators') }}">Operators</a>
+        <a href="{{ url_for('machines.view_machines') }}">Machines</a>
+        <a href="{{ url_for('operators.view_operators') }}">Operators</a>
     
         <!-- Nuovo dropdown Rapportini -->
         <div class="dropdown">
             <button class="dropbtn">Rapportini</button>
             <div class="dropdown-content">
-                <a href="{{ url_for('notes') }}">View and Insert</a>
-                <a href="{{ url_for('add_activity') }}">Activities</a>
-                <a href="{{ url_for('personal_reports_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('notes.notes') }}">View and Insert</a>
+                <a href="{{ url_for('notes.add_activity') }}">Activities</a>
+                <a href="{{ url_for('notes.personal_reports_dashboard') }}">Dashboard</a>
             </div>
         </div>
     
-        <a href="{{ url_for('chatbot') }}">Chatbot</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <a href="{{ url_for('chatbot.chatbot') }}">Chatbot</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
     </div>
     
     {% endif %}

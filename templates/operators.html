@@ -17,7 +17,7 @@
             </div>
             <!-- Pulsante per modificare i dati dell'operatore con icona colorata di bianco -->
             <div class="machine-card-footer">
-                <a href="{{ url_for('edit_operator', operator_id=operator.operator_id) }}" class="btn btn-primary">
+                <a href="{{ url_for('operators.edit_operator', operator_id=operator.operator_id) }}" class="btn btn-primary">
                     <span class="material-icons" style="color: white;">edit</span>
                 </a>
             </div>
@@ -26,6 +26,6 @@
     </div>
     
     <h2>Add New Operator</h2>
-    <a href="{{ url_for('add_operator') }}" class="btn btn-primary">Add Operator</a>
+    <a href="{{ url_for('operators.add_operator') }}" class="btn btn-primary">Add Operator</a>
 </div>
 {% endblock %}

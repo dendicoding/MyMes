@@ -11,7 +11,7 @@
 </div>
 
 <!-- Withdrawal Form -->
-<form method="POST" action="{{ url_for('withdraw_material', material_id=material.material_id) }}">
+<form method="POST" action="{{ url_for('resources.withdraw_material', material_id=material.material_id) }}">
     <div class="form-group">
         <label for="quantity">Quantity</label>
         <input type="number" id="quantity" name="quantity" min="1" max="{{ material.available_quantity }}" required>

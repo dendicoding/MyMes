@@ -27,7 +27,7 @@
                 <td>{{ material.unit_cost }}</td>
                 <td>{{ material.cycleID }}</td>
                 <td class="actions-column">
-                    <form action="{{ url_for('withdraw_material', material_id=material.material_id) }}" method="GET">
+                    <form action="{{ url_for('resources.withdraw_material', material_id=material.material_id) }}" method="GET">
                         <button type="submit" class="btn-link" title="Withdraw">
                             <i class="material-icons">trolley</i>
                         </button>

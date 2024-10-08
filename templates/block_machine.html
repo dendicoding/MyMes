@@ -10,7 +10,7 @@
     <p><strong>Start Time:</strong> {{ machine.start_time if machine.start_time else 'None' }}</p>
 </div>
 <div class="block-machine-form">
-    <form method="POST" action="{{ url_for('block_machine', machine_id=machine.machine_id) }}">
+    <form method="POST" action="{{ url_for('machines.block_machine', machine_id=machine.machine_id) }}">
         <div class="form-group">
             <label for="causal">Causal of Block:</label>
             <input type="text" id="causal" name="causal" class="form-control" required>

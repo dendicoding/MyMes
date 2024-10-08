@@ -4,7 +4,7 @@
 <h1>Create Order</h1>
 <div class="page">
     <h2>New Order</h2>
-    <form method="POST" action="{{ url_for('orders') }}">
+    <form method="POST" action="{{ url_for('orders.orders') }}">
         <div class="form-group">
             <label for="order_id">Order ID:</label>
             <input type="text" id="order_id" name="order_id" required>

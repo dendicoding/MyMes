@@ -27,7 +27,7 @@
         {% for order in orders %}
             {% if order.status != 'completed' %}
                 <tr>
-                    <form action="{{ url_for('manage_orders') }}" method="POST" style="display: flex; align-items: center;">
+                    <form action="{{ url_for('orders.manage_orders') }}" method="POST" style="display: flex; align-items: center;">
                         <td>{{ order.order_id }}</td>
                         <td>{{ order.product }}</td>
                         <td>{{ order.quantity }}</td>
@@ -44,5 +44,5 @@
     </tbody>
 </table>
 
-<a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+<a href="{{ url_for('misc.dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
 {% endblock %}

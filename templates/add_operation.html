@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>Create New Operation</h1>
-<form action="{{ url_for('add_operation', cycle_id=cycle_id) }}" method="POST">
+<form action="{{ url_for('operations.add_operation', cycle_id=cycle_id) }}" method="POST">
     <div class="form-group">
         <label for="operation_name">Operation Name</label>
         <input type="text" id="operation_name" name="operation_name" class="form-control" required>

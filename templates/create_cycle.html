@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>Create New Cycle</h1>
-<form action="{{ url_for('create_cycle') }}" method="POST">
+<form action="{{ url_for('cycles.create_cycle') }}" method="POST">
     <div class="form-group">
         <label for="cycle_name">Cycle Name</label>
         <input type="text" id="cycle_name" name="cycle_name" class="form-control" required>

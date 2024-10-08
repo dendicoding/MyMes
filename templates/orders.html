@@ -28,7 +28,7 @@
                 <td>
                     {% if order.status == 'created' %}
                         <!-- Emit Icon Button -->
-                        <form action="{{ url_for('emit_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
+                        <form action="{{ url_for('orders.emit_order', order_id=order.order_id) }}" method="POST" style="display:inline;">
                             <button type="submit" class="btn-link" title="Emit">
                                 <i class="material-icons">download</i>
                             </button>
@@ -36,7 +36,7 @@
                         </form>
                     {% endif %}
                     <!-- Delete Icon Button -->
-                    <form action="{{ url_for('delete_order', order_id=order.order_id) }}" method="POST" style="display:inline;" onclick="return confirm('Are you sure you want to delete this order?');">
+                    <form action="{{ url_for('orders.delete_order', order_id=order.order_id) }}" method="POST" style="display:inline;" onclick="return confirm('Are you sure you want to delete this order?');">
                         <button type="submit" class="btn-link" title="Delete">
                             <i class="material-icons">delete_forever</i>
                         </button>

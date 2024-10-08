@@ -19,9 +19,9 @@
             <!-- Pulsante per bloccare o sbloccare la macchina -->
             <div class="machine-card-footer">
                 {% if machine.status == 'blocked' %}
-                    <a href="{{ url_for('unblock_machine', machine_id=machine.machine_id) }}" class="btn btn-success">Unblock Machine</a>
+                    <a href="{{ url_for('machines.unblock_machine', machine_id=machine.machine_id) }}" class="btn btn-success">Unblock Machine</a>
                 {% else %}
-                    <a href="{{ url_for('block_machine', machine_id=machine.machine_id) }}" class="btn btn-danger">Block Machine</a>
+                    <a href="{{ url_for('machines.block_machine', machine_id=machine.machine_id) }}" class="btn btn-danger">Block Machine</a>
                 {% endif %}
             </div>
         </div>
@@ -29,6 +29,6 @@
     </div>
 
     <h2>Add New Machine</h2>
-    <a href="{{ url_for('add_machine') }}" class="btn btn-primary">Add Machine</a>
+    <a href="{{ url_for('machines.add_machine') }}" class="btn btn-primary">Add Machine</a>
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>Create New Lot</h1>
-<form action="{{ url_for('create_lot_function') }}" method="POST">
+<form action="{{ url_for('lots.create_lot_function') }}" method="POST">
     <div class="form-group">
         <label for="lot_code">Lot Code</label>
         <input type="text" id="lot_code" name="lot_code" class="form-control" required>
