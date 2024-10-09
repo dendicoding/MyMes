@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Preventive Maintenance List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Machine ID</th>
+                <th>Scheduled Date</th>
+                <th>Technician</th>
+                <th>Planned Activity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for maintenance in maintenance_list %}
+            <tr class="{% if maintenance.status == 'completed' %}order-status-in-progress{% endif %}">
+                <td>{{ maintenance.maintenance_id }}</td>
+                <td>{{ maintenance.machine_id }}</td>
+                <td>{{ maintenance.scheduled_date }}</td>
+                <td>{{ maintenance.technician }}</td>
+                <td>{{ maintenance.planned_activity }}</td>
+                <td>{{ maintenance.status }}</td>
+                <td>
+                    {% if maintenance.status == 'pending' %}
+                    <a href="{{ url_for('maintenance.complete_preventive_maintenance', maintenance_id=maintenance.maintenance_id) }}" class="btn-link">
+                        <i class="material-icons">check_box</i>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('maintenance.add_preventive_maintenance') }}" class="btn btn-primary">Add Preventive Maintenance</a>
+{% endblock %}

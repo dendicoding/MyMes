@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Add Self Maintenance Record</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="machine_id">Machine:</label>
+                <select class="form-control" name="machine_id" required>
+                    {% for machine in machines %}
+                        <option value="{{ machine.id }}">{{ machine.machine_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="operator">Operator:</label>
+                <select class="form-control" name="operator" required>
+                    {% for operator in operators %}
+                        <option value="{{ operator.operator_id }}">{{ operator.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="control_result">Control Result:</label>
+                <textarea class="form-control" name="control_result" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Record</button>
+        </form>
+        <a href="{{ url_for('maintenance.view_self_maintenance') }}" class="btn btn-secondary mt-3">Back to Self Maintenance</a>
+    </div>
+{% endblock %}

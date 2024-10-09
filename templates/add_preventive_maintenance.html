@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Add Preventive Maintenance</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="machine_id">Machine ID</label>
+                <select class="form-control" id="machine_id" name="machine_id" required>
+                    {% for machine in machines %}
+                        <option value="{{ machine.id }}">{{ machine.id }} - {{ machine.machine_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="scheduled_date">Scheduled Date</label>
+                <input type="datetime-local" class="form-control" id="scheduled_date" name="scheduled_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="technician">Technician</label>
+                <select class="form-control" id="technician" name="technician" required>
+                    {% for operator in operators %}
+                        <option value="{{ operator.operator_id }}">{{ operator.operator_id }} - {{ operator.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="planned_activity">Planned Activity</label>
+                <textarea class="form-control" id="planned_activity" name="planned_activity" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Maintenance</button>
+        </form>
+
+        <a href="{{ url_for('maintenance.view_preventive_maintenance') }}" class="btn btn-secondary mt-3">Back to Maintenance List</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <h1>Add Repair Maintenance Record</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="machine_id">Machine:</label>
+            <select class="form-control" name="machine_id" required>
+                {% for machine in machines %}
+                    <option value="{{ machine.id }}">{{ machine.machine_id }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="technician">Technician:</label>
+            <select class="form-control" name="technician" required>
+                {% for technician in technicians %}
+                    <option value="{{ technician.operator_id }}">{{ technician.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="intervention_type">Intervention Type:</label>
+            <select class="form-control" name="intervention_type" required>
+                <option value="repair">Repair</option>
+                <option value="preparation">Preparation</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="intervention_description">Intervention Description:</label>
+            <textarea class="form-control" name="intervention_description" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Record</button>
+    </form>
+    <a href="{{ url_for('maintenance.view_repair_maintenance') }}" class="btn btn-secondary mt-3">Back to Repair Maintenance</a>
+    
+{% endblock %}

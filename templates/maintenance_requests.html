@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Maintenance Requests</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Machine</th>
+                <th>Request Date</th>
+                <th>Requester</th>
+                <th>Problem Description</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in maintenance_requests %}
+            <tr class="{% if request.request_status == 'completed' %}order-status-in-progress{% endif %}">
+                <td>{{ request.request_id }}</td>
+                <td>{{ request.machine_id }}</td>
+                <td>{{ request.request_date }}</td>
+                <td>{{ request.requester }}</td>
+                <td>{{ request.problem_description }}</td>
+                <td>{{ request.request_status }}</td>
+                <td>
+                    {% if request.request_status == 'pending' %}
+                    <a href="{{ url_for('maintenance.complete_maintenance_request', request_id=request.request_id) }}" class="btn-link">
+                        <i class="material-icons">check_box</i>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('maintenance.add_maintenance_request') }}" class="btn btn-primary">Add New Request</a>
+{% endblock %}

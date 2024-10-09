@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Add Maintenance Request</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="machine_id">Machine:</label>
+                <select class="form-control" name="machine_id" required>
+                    {% for machine in machines %}
+                        <option value="{{ machine.id }}">{{ machine.machine_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="requester">Requester:</label>
+                <select class="form-control" name="requester" required>
+                    {% for operator in operators %}
+                        <option value="{{ operator.operator_id }}">{{ operator.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="problem_description">Problem Description:</label>
+                <textarea class="form-control" name="problem_description" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
+        <a href="{{ url_for('maintenance.view_maintenance_requests') }}" class="btn btn-secondary mt-3">Back to Requests</a>
+    </div>
+{% endblock %}

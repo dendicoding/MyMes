@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <h1>Self Maintenance Records</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Machine</th>
+                <th>Control Date</th>
+                <th>Operator</th>
+                <th>Control Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in self_maintenance_records %}
+            <tr>
+                <td>{{ record.self_maintenance_id }}</td>
+                <td>{{ record.machine_id }}</td>
+                <td>{{ record.control_date }}</td>
+                <td>{{ record.operator }}</td>
+                <td>{{ record.control_result }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('maintenance.add_self_maintenance') }}" class="btn btn-primary">Add New Self Maintenance Record</a>
+    
+{% endblock %}

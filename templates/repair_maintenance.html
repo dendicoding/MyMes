@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <h1>Repair Maintenance Records</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Machine</th>
+                <th>Intervention Date</th>
+                <th>Technician</th>
+                <th>Intervention Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in repair_maintenance_records %}
+            <tr>
+                <td>{{ record.repair_id }}</td>
+                <td>{{ record.machine_id }}</td>
+                <td>{{ record.intervention_date }}</td>
+                <td>{{ record.technician }}</td>
+                <td>{{ record.intervention_type }}</td>
+                <td>{{ record.intervention_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('maintenance.add_repair_maintenance') }}" class="btn btn-primary">Add New Repair Maintenance Record</a>
+    
+{% endblock %}

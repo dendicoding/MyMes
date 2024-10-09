@@ -267,6 +267,16 @@
     
         <a href="{{ url_for('machines.view_machines') }}">Machines</a>
         <a href="{{ url_for('operators.view_operators') }}">Operators</a>
+        <div class="dropdown">
+            <button class="dropbtn">Maintenance</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('maintenance.view_preventive_maintenance') }}">Preventive</a>
+                <a href="{{ url_for('maintenance.preventive_maintenance_calendar') }}">Calendar</a>
+                <a href="{{ url_for('maintenance.view_maintenance_requests') }}">Requests</a>
+                <a href="{{ url_for('maintenance.view_self_maintenance') }}">Self</a>
+                <a href="{{ url_for('maintenance.view_repair_maintenance') }}">Repair/Prepare</a>
+            </div>
+        </div>
     
         <!-- Nuovo dropdown Rapportini -->
         <div class="dropdown">

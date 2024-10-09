@@ -13,6 +13,7 @@ from routes.misc import misc_bp
 from routes.chatbot import chatbot_bp
 from routes.notes import notes_bp
 from routes.operations import operations_bp
+from routes.maintenance import maintenance_bp
 from config import Config
 
 def create_app():
@@ -34,5 +35,6 @@ def create_app():
     app.register_blueprint(chatbot_bp)
     app.register_blueprint(notes_bp)
     app.register_blueprint(operations_bp)
+    app.register_blueprint(maintenance_bp)
 
     return app
