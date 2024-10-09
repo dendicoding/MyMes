@@ -1,22 +1,19 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 <h1>Cycle Details</h1>
 <p><strong>Cycle ID:</strong> {{ cycle['CycleID'] }}</p>
 <p><strong>Name:</strong> {{ cycle['CycleName'] }}</p>
 <p><strong>Description:</strong> {{ cycle['Description'] }}</p>
-<!-- Altri dettagli del ciclo -->
 
 <h2>Operations</h2>
-<a href="{{ url_for('operations.add_operation', cycle_id=cycle['CycleID']) }}" class="btn btn-primary">Add Operation</a>
 <table class="table table-striped">
     <thead>
         <tr>
             <th>Operation ID</th>
             <th>Name</th>
             <th>Sequence</th>
-            <th>Estimated Time</th>>
+            <th>Estimated Time</th>
         </tr>
     </thead>
     <tbody>
@@ -31,4 +28,5 @@
         {% endfor %}
     </tbody>
 </table>
+<a href="{{ url_for('operations.add_operation', cycle_id=cycle['CycleID']) }}" class="btn btn-primary">Add Operation </a>
 {% endblock %}

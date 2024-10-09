@@ -7,6 +7,10 @@
         <label for="name">Nome Operatore:</label>
         <input type="text" id="name" name="name" class="form-control" value="{{ operator.name }}" required>
     </div>
+    <div class="form-group">
+        <label for="qualification">Qualifica Operatore:</label>
+        <input type="text" id="qualification" name="qualification" class="form-control" value="{{ operator.qualification }}" required>
+    </div>
     <button type="submit" class="btn btn-success">Salva Modifiche</button>
 </form>
 {% endblock %}

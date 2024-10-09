@@ -18,7 +18,8 @@ def get_operators():
                 'operator_id': row.operator_id,
                 'name': row.name,
                 'status': row.status,
-                'current_task': row.current_task
+                'current_task': row.current_task,
+                'qualification': row.qualification
             })
 
         return operators_list
@@ -46,13 +47,13 @@ def add_operator():
     else:
         return redirect(url_for('auth.login'))
 
-def insert_operator(name):
+def insert_operator(name, qualification):
     try:
         connection = pyodbc.connect(CONNECTION_STRING)
         cursor = connection.cursor()
         
-        sql_insert_query = """INSERT INTO Operatori (name, status) VALUES (?, ?)"""
-        record_to_insert = (name, 'idle')
+        sql_insert_query = """INSERT INTO Operatori (name, status, qualification) VALUES (?, ?, ?)"""
+        record_to_insert = (name, 'idle', qualification)
         cursor.execute(sql_insert_query, record_to_insert)
 
         connection.commit()
@@ -121,13 +122,14 @@ def edit_operator(operator_id):
     if request.method == 'POST':
         # Ricevi dati dal form di modifica
         name = request.form['name']
+        qualification = request.form['qualification']
 
         # Esegui l'aggiornamento del database
         cursor.execute("""
             UPDATE Operatori
-            SET name = ?
+            SET name = ?, qualification = ?
             WHERE operator_id = ?
-        """, (name, operator_id))
+        """, (name, qualification, operator_id))
         conn.commit()
         conn.close()
         

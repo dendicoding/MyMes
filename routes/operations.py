@@ -1,8 +1,6 @@
 from flask import Blueprint, render_template, request, session, redirect, flash,url_for
 from config import CONNECTION_STRING
 import pyodbc
-from routes.machines import get_machines, update_machine
-from datetime import datetime
 
 operations_bp = Blueprint('operations', __name__)
 
